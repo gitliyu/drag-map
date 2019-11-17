@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <link rel="stylesheet" type="text/css" href="./css/main.css" />
+</head>
+<body>
+  <div id="app">
+    <div id="drag-list">
+      <div class="drag-target" v-for="item in selectList" :key="item">{{ item.text }}</div>
+    </div>
+
+    <div id="drag-map">
+      <div class="drag-target" :style="item.style" v-for="item in mapList" :key="item">
+        {{ item.text }}
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+<script src="./js/vue.min.js"></script>
+<script type="module">
+  import DragMap from '../src/DragMap.js'
+
+  new Vue ({
+    el: '#app',
+    data: {
+      selectList: [
+        { text: 1 },
+        { text: 2 },
+        { text: 3 }
+      ],
+      mapList: []
+    },
+    mounted () {
+      var dragMap = new DragMap();
+
+      dragMap.on('drop', data => {
+        const index = data.index;
+        const target = this.getTarget(index);
+        this.$set(target, 'style', data.percentStyle);
+        if (data.action === 'add') {
+          this.mapList.push(target);
+        } else {
+          this.mapList[index] = target;
+        }
+        this.$forceUpdate();
+        this.$nextTick(() => {
+          dragMap.refresh();
+        })
+      }).on('dragleave', data => {
+        this.mapList.splice(data.index, 1);
+        this.$forceUpdate();
+        this.$nextTick(() => {
+          dragMap.refresh();
+        })
+      })
+    },
+    methods: {
+      getTarget (index) {
+        return JSON.parse(JSON.stringify(this.selectList[index]));
+      }
+    }
+  });
+
+</script>

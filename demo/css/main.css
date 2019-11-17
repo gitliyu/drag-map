@@ -1,0 +1,29 @@
+#app {
+    width: 80%;
+    height: 500px;
+    margin: 50px auto;
+    padding: 10px;
+    border: 1px solid #333;
+}
+
+#drag-list {
+    display: flex;
+}
+
+.drag-target{
+    width: 100px;
+    height: 100px;
+    border: 1px solid #666;
+    margin-right: 10px;
+}
+
+#drag-map {
+    height: calc(100% - 110px);
+    margin-top: 10px;
+    border: 1px solid #666;
+    position: relative;
+}
+
+#drag-map .drag-target {
+    position: absolute;
+}
