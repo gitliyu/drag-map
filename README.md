@@ -5,7 +5,7 @@
 ### Demo
 Demo: ['https://www.liyu.fun/demo/drag-map'](https://www.liyu.fun/demo/drag-map)
 
-Demo源码示例： ['demo.vue'](https://github.com/gitliyu/drag-map/blob/master/demo/src/views/Home.vue)
+Demo源码示例： ['Home.vue'](https://github.com/gitliyu/drag-map/blob/master/demo/src/views/Home.vue)
 
 ### 安装
 ```
@@ -70,3 +70,5 @@ dragMap.on('drop', data => {
 }
 ```
 
+### 方法
+***refresh()*** 当dom元素发生变化后调用，重新刷新dom节点并绑定事件
