@@ -1,6 +1,6 @@
 {
   "name": "drag-map",
-  "version": "1.0.5",
+  "version": "1.0.8",
   "description": "drag helper",
   "main": "index.js",
   "private": false,
@@ -11,9 +11,7 @@
   ],
   "files": [
     "src",
-    "index.js",
-    "package.json",
-    "README.md"
+    "index.js"
   ],
   "author": "liyu",
   "license": "ISC",

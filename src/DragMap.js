@@ -1,21 +1,6 @@
-import { get, round } from './utils.js'
+import { get, round } from './utils'
 
 class DragMap {
-
-  // 元素选择器
-  list = null;
-  map = null;
-  target = null;
-
-  // 拖拽暂存数据
-  activeIndex = 0;
-  action = 'add';
-  mapWidth = 0;
-  mapHeight = 0;
-  targets = [];
-
-  // 事件回调
-  handlers = {};
 
   constructor (options = {}) {
     this.list = get(options, 'list', '#drag-list');
@@ -195,6 +180,9 @@ class DragMap {
    * @returns {DragMap}
    */
   on (type, fn) {
+    if (!this.handlers) {
+      this.handlers = [];
+    }
     if (!this.handlers[type]) {
       this.handlers[type] = [];
     }
