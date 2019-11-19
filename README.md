@@ -1,6 +1,6 @@
 # drag-map
 
-拖拽定位工具类，主要提供了拖拽方法，事件发送以及位点信息的计算功能
+拖拽定位工具类，主要提供了拖拽方法的封装，事件发送以及位点数据的计算
 
 ### Demo
 Demo: ['https://www.liyu.fun/demo/drag-map'](https://www.liyu.fun/demo/drag-map)
@@ -61,8 +61,8 @@ dragMap.on('drop', data => {
 {
   action: 'add'   // 操作类型 'add'|'edit'
   index: 1  // 拖拽对象索引值
-  offsetX: 155  // 水平偏移量
-  offsetY: 106  // 垂直偏移量
+  offsetX: 155  // 水平偏移量，单位px
+  offsetY: 106  // 垂直偏移量，单位px
   percentX: 10.18   // 水平偏移百分比
   percentY: 27.04   // 垂直偏移百分比
   style: 'left: 155px;top: 106px;', // style字符串
