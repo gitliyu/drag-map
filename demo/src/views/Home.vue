@@ -53,9 +53,7 @@ export default {
         target.style = data.percentStyle;
         this.$set(this.mapList, this.mapList.length, target);
       } else {  // edit
-        const target = {...this.mapList[index]};
-        target.style = data.percentStyle;
-        this.$set(this.mapList, index, target);
+        this.mapList[index]['style'] = data.percentStyle;
       }
       // 渲染完成后，重新获取dom节点
       this.$nextTick(() => {
