@@ -8,7 +8,7 @@ Demo: ['https://www.liyu.fun/demo/drag-map'](https://www.liyu.fun/demo/drag-map)
 Demo源码示例： ['Home.vue'](https://github.com/gitliyu/drag-map/blob/master/demo/src/views/Home.vue)
 
 ### 安装
-```
+```shell
 npm install drag-map
 ```
 
