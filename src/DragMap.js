@@ -33,6 +33,7 @@ class DragMap {
     this.mapHeight = map.offsetHeight;
 
     this.targets = [...listTargets, ...mapTargets];
+    this.mapPosition = this.getPosition(map);
     this.bindEvents(map, listTargets, mapTargets);
   }
 
@@ -131,7 +132,7 @@ class DragMap {
     if (!this.isMap(get(event, 'target')) || this.isTarget(get(event, 'fromElement'))) {
       return;
     }
-    if(this.action === 'add') {
+    if (this.action === 'add') {
       return;
     }
     this.emit('dragleave', {
@@ -151,13 +152,8 @@ class DragMap {
       attributes[item] = event.dataTransfer.getData(item);
     });
 
-    let offsetX = get(event, 'offsetX', 0) - get(attributes, 'targetOffsetX');
-    let offsetY = get(event, 'offsetY', 0) - get(attributes, 'targetOffsetY');
-    const target = get(event, 'target');
-    if (this.isTarget(target)) {
-      offsetX += target.offsetLeft;
-      offsetY += target.offsetTop;
-    }
+    let offsetX = event.x - get(this.mapPosition, 'left') - get(attributes, 'targetOffsetX');
+    let offsetY = event.y - get(this.mapPosition, 'top') - get(attributes, 'targetOffsetY');
     const percentX = round(offsetX / this.mapWidth * 100, 2);
     const percentY = round(offsetY / this.mapHeight * 100, 2);
 
@@ -223,6 +219,19 @@ class DragMap {
    */
   isTarget (target) {
     return this.targets.includes(target);
+  }
+
+  /**
+   * 获取元素相对页面偏移量
+   * @param el
+   * @returns {{top: number, left: number}}
+   */
+  getPosition (el) {
+    const bound = el.getBoundingClientRect();
+    const top = bound.top - document.documentElement.clientTop;
+    const left = bound.left - document.documentElement.clientLeft;
+
+    return {top, left};
   }
 
   /**
