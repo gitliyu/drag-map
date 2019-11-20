@@ -2,13 +2,17 @@
   <div class="home">
     <div id="drag-list">
       <div class="drag-target" v-for="(item, index) in selectList" :key="index">
-        {{ item.text }}
+        <svg class="icon svg-icon" aria-hidden="true">
+          <use :xlink:href="'#icon-house-' + item.number"></use>
+        </svg>
       </div>
     </div>
 
     <div id="drag-map">
       <div class="drag-target" :style="item.style" v-for="(item, index) in mapList" :key="index">
-        {{ item.text }}
+        <svg class="icon svg-icon" aria-hidden="true">
+          <use :xlink:href="'#icon-house-' + item.number"></use>
+        </svg>
       </div>
     </div>
   </div>
@@ -23,9 +27,11 @@ export default {
   data () {
     return {
       selectList: [
-        { text: 1 },
-        { text: 2 },
-        { text: 3 }
+        { number: 0 },
+        { number: 1 },
+        { number: 2 },
+        { number: 3 },
+        { number: 4 }
       ],
       mapList: [],
       dragMap: null
@@ -86,10 +92,16 @@ export default {
     .drag-target{
       width: 100px;
       height: 100px;
-      border: 1px solid #666;
       margin-right: 10px;
       text-align: center;
       line-height: 100px;
+      .icon {
+        width: 70px;
+        height: 70px;
+        vertical-align: middle;
+        fill: currentColor;
+        overflow: hidden;
+      }
     }
 
     #drag-map {
