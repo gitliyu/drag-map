@@ -8,7 +8,7 @@ Demo: ['https://www.liyu.fun/demo/drag-map'](https://www.liyu.fun/demo/drag-map)
 Demo源码示例： ['Home.vue'](https://github.com/gitliyu/drag-map/blob/master/demo/src/views/Home.vue)
 
 ### 安装
-```javascript
+```
 npm install drag-map
 ```
 
@@ -57,7 +57,7 @@ dragMap.on('drop', data => {
 - ***dragleave*** 拖拽离开目标区域
 
 事件回调参数有两个，第一个参数格式如下，第二个参数为原生`drag`事件参数
-```json
+```javascript
 {
   action: 'add'   // 操作类型 'add'|'edit'
   index: 1  // 拖拽对象索引值
