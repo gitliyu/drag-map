@@ -1,6 +1,8 @@
 # drag-map
 
-拖拽定位工具类，主要提供了拖拽方法的封装，事件发送以及位点数据的计算
+拖拽定位工具类，提供了拖拽方法的封装，事件发送以及位点数据的计算
+
+主要应用场景为各种IOT项目的示意图，设备定位功能
 
 ### Demo
 Demo: ['https://www.liyu.fun/demo/drag-map'](https://www.liyu.fun/demo/drag-map)
