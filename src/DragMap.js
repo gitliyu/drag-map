@@ -16,15 +16,15 @@ class DragMap {
   initElements () {
     const list = document.querySelector(this.list);
     const map = document.querySelector(this.map);
-    const listTargets = list.querySelectorAll(this.target);
-    const mapTargets = map.querySelectorAll(this.target);
-
     if (!list) {
       return console.warn('Object list not found:', this.list);
     }
     if (!map) {
       return console.warn('Object map not found:', this.map);
     }
+
+    const listTargets = list.querySelectorAll(this.target);
+    const mapTargets = map.querySelectorAll(this.target);
     if (!listTargets || !listTargets.length) {
       return console.warn('Object target not found:', this.target);
     }
