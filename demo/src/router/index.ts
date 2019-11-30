@@ -1,14 +1,24 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
+import Position from '../views/Position.vue'
+import Canvas from '../views/Canvas.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/',
-    name: 'home',
-    component: Home
+    redirect: '/position'
+  },
+  {
+    path: '/position',
+    name: 'position',
+    component: Position
+  },
+  {
+    path: '/canvas',
+    name: 'canvas',
+    component: Canvas
   }
 ]
 

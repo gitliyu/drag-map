@@ -1,5 +1,5 @@
 <template>
-  <div class="home">
+  <div class="position">
     <div id="drag-list">
       <div class="drag-target" v-for="(item, index) in selectList" :key="index">
         <svg class="icon svg-icon" aria-hidden="true">
@@ -22,7 +22,6 @@
 import DragMap from 'drag-map';
 
 export default {
-  name: 'home',
   components: {},
   data () {
     return {
@@ -78,10 +77,10 @@ export default {
 </script>
 
 <style lang="scss">
-  .home {
+  .position {
     width: 80%;
     height: 500px;
-    margin: 50px auto;
+    margin: 20px auto;
     padding: 10px;
     border: 1px solid #333;
 
