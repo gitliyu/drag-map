@@ -32,7 +32,10 @@ export default {
   },
   methods: {
     initDragMap () {
-      this.dragMap = new DragMap({ type: 'canvas' });
+      this.dragMap = new DragMap({
+        type: 'canvas',
+        images: this.selectList
+      });
     }
   }
 }

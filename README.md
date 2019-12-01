@@ -7,7 +7,7 @@
 ### Demo
 Demo: ['https://www.liyu.fun/demo/drag-map'](https://www.liyu.fun/demo/drag-map)
 
-Demo源码示例： ['Home.vue'](https://github.com/gitliyu/drag-map/blob/master/demo/src/views/Home.vue)
+Demo源码示例： ['Position.vue'](https://github.com/gitliyu/drag-map/blob/master/demo/src/views/Position.vue)
 
 ### 安装
 ```
@@ -46,7 +46,8 @@ const dragMap = new DragMap();
 
 dragMap.on('drop', data => {
   console.log('drop', data);
-}).on('dragleave', data => {
+});
+dragMap.on('dragleave', data => {
   console.log('leave', data);
 })
 ```
