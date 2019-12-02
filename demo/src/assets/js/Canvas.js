@@ -115,9 +115,11 @@ class Canvas extends Base {
     const dropData = {
       index: this.activeIndex,
       x: percentX,
-      y: percentY
+      y: percentY,
+      width: this.activeTarget.width,
+      height: this.activeTarget.height
     };
-    this.data.unshift(dropData);
+    this.data.push(dropData);
     this.drawImage(dropData);
 
     this.emit('drop', event);
@@ -142,6 +144,39 @@ class Canvas extends Base {
 
     // todo canvas scale
     this.scale = 1;
+    this.bindCanvasEvent();
+  }
+
+  bindCanvasEvent () {
+    this.canvas.onmousedown = event => {
+      const x = event.clientX - get(this.mapPosition, 'left');
+      const y = event.clientY - get(this.mapPosition, 'top');
+
+      const image = this.getPointInImages(x, y);
+      if (image) {
+        console.log('点击图标', image);
+        let imageX = image.x;
+        let imageY = image.y;
+        this.canvas.onmousemove = ev => {
+          image.x = imageX + (ev.clientX - event.clientX) / this.mapWidth;
+          image.y = imageY + (ev.clientY - event.clientY) / this.mapHeight;
+          this.drawAllImages();
+        };
+        this.canvas.onmouseup = () => {
+          this.canvas.onmousemove = null;
+          this.canvas.onmouseup = null;
+        }
+      } else {
+        console.log('点击画布');
+      }
+    }
+  }
+
+  drawAllImages () {
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.data.forEach(item => {
+      this.drawImage(item);
+    })
   }
 
   drawImage (data) {
@@ -156,6 +191,20 @@ class Canvas extends Base {
       x * this.canvas.width, y * this.canvas.height,
       img.width * this.scale, img.height * this.scale
     );
+  }
+
+  getPointInImages (x, y) {
+    let pointImage;
+    for (let i = this.data.length - 1; i >= 0; i--) {
+      const image = this.data[i];
+      const imageLeft = image.x * this.mapWidth;
+      const imageTop = image.y * this.mapHeight;
+      if (x >= imageLeft && x < imageLeft + image.width && y>= imageTop && y < imageTop + image.height) {
+        pointImage = image;
+        break;
+      }
+    }
+    return pointImage;
   }
 
 }
