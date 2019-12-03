@@ -7,6 +7,8 @@ class Canvas extends Base {
     super(options);
     this.images = get(options, 'images', []);
     this.data = get(options, 'data', []);
+    this.maxScale = get(options, 'maxScale', 2);
+    this.minScale = get(options, 'minScale', 1);
 
     this.initElements();
     this.initCanvas();
@@ -37,6 +39,11 @@ class Canvas extends Base {
     this.bindEvents(map, targets);
   }
 
+  /**
+   * 绑定拖拽事件
+   * @param map
+   * @param targets
+   */
   bindEvents (map, targets) {
     this.bindTargetEvents(targets);
 
@@ -135,6 +142,9 @@ class Canvas extends Base {
     }, event);
   }
 
+  /**
+   * 初始化canvas
+   */
   initCanvas () {
     this.canvas = document.querySelector(this.map);
     this.context = this.canvas.getContext('2d');
@@ -142,11 +152,15 @@ class Canvas extends Base {
     this.canvas.width =  this.canvas.offsetWidth;
     this.canvas.height =  this.canvas.offsetHeight;
 
-    // todo canvas scale
     this.scale = 1;
+    this.canvasOffsetX = 0;
+    this.canvasOffsetY = 0;
     this.bindCanvasEvent();
   }
 
+  /**
+   * 绑定canvas事件
+   */
   bindCanvasEvent () {
     this.canvas.onmousedown = event => {
       const x = event.clientX - get(this.mapPosition, 'left');
@@ -168,10 +182,42 @@ class Canvas extends Base {
         }
       } else {
         console.log('点击画布');
+        const canvasOffsetX = this.canvasOffsetX;
+        const canvasOffsetY = this.canvasOffsetY;
+        this.canvas.onmousemove = ev => {
+          this.canvasOffsetX = canvasOffsetX + ev.clientX - event.clientX;
+          this.canvasOffsetY = canvasOffsetY + ev.clientY - event.clientY;
+          this.drawAllImages();
+        };
+        this.canvas.onmouseup = () => {
+          this.canvas.onmousemove = null;
+          this.canvas.onmouseup = null;
+        }
       }
-    }
+    };
+
+    this.canvas.onmousewheel = event => {
+      const wheelDelta = event.wheelDelta || event.deltalY * -40;
+      const x = event.clientX - get(this.mapPosition, 'left');
+      const y = event.clientY - get(this.mapPosition, 'top');
+      const newX = round((x - this.canvasOffsetX) / this.scale, 2);
+      const newY = round((y - this.canvasOffsetY) / this.scale, 2);
+      if (wheelDelta > 0) {
+        this.scale += 0.1;
+        this.scale = this.scale > this.maxScale ? this.maxScale : this.scale;
+      } else {
+        this.scale -= 0.1;
+        this.scale = this.scale < this.minScale ? this.minScale : this.scale;
+      }
+      this.canvasOffsetX = (1 - this.scale) * newX + (x - newX);
+      this.canvasOffsetY = (1 - this.scale) * newY + (y - newY);
+      this.drawAllImages();
+    };
   }
 
+  /**
+   * 重绘所有图像
+   */
   drawAllImages () {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.data.forEach(item => {
@@ -179,20 +225,48 @@ class Canvas extends Base {
     })
   }
 
+  /**
+   * 画图
+   * @param data
+   */
   drawImage (data) {
     const { index, x, y } = data;
     const list = document.querySelector(this.list);
     const img = list.querySelectorAll('img')[index];
+    this.verifyCanvasOffset();
 
     this.context.drawImage(
       img,
       0, 0,
       img.width, img.height,
-      x * this.canvas.width, y * this.canvas.height,
+      (x * this.canvas.width) * this.scale + this.canvasOffsetX,
+      (y * this.canvas.height) * this.scale + this.canvasOffsetY,
       img.width * this.scale, img.height * this.scale
     );
   }
 
+  /**
+   * 校对偏移量
+   */
+  verifyCanvasOffset () {
+    if (this.canvasOffsetX < this.mapWidth * (1 - this.scale)) {
+      this.canvasOffsetX = this.mapWidth * (1 - this.scale);
+    } else if (this.canvasOffsetX > 0) {
+      this.canvasOffsetX = 0
+    }
+    if (this.canvasOffsetY < this.mapHeight * (1 - this.scale)) {
+      this.canvasOffsetY = this.mapHeight * (1 - this.scale);
+    } else if (this.canvasOffsetY > 0) {
+      this.canvasOffsetY = 0
+    }
+  }
+
+  /**
+   * 验证坐标是否在图像对象上
+   * @param x
+   * @param y
+   * @returns {*}
+   */
   getPointInImages (x, y) {
     let pointImage;
     for (let i = this.data.length - 1; i >= 0; i--) {
