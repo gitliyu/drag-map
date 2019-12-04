@@ -106,7 +106,7 @@ class Canvas extends Base {
    */
   onDragOver (event) {
     this.emit('dragover', event);
-    event.preventDefault()
+    event.preventDefault();
   }
 
   /**
@@ -116,8 +116,9 @@ class Canvas extends Base {
   onDrop (event) {
     let offsetX = event.x - get(this.mapPosition, 'left') - get(this.activeTarget, 'x');
     let offsetY = event.y - get(this.mapPosition, 'top') - get(this.activeTarget, 'y');
-    const percentX = round(offsetX / this.mapWidth, 4);
-    const percentY = round(offsetY / this.mapHeight, 4);
+    const { left, top } = this.transformPoint(offsetX, offsetY, 1);
+    const percentX = round(left / this.mapWidth, 4);
+    const percentY = round(top / this.mapHeight, 4);
 
     const dropData = {
       index: this.activeIndex,
@@ -149,8 +150,8 @@ class Canvas extends Base {
     this.canvas = document.querySelector(this.map);
     this.context = this.canvas.getContext('2d');
 
-    this.canvas.width =  this.canvas.offsetWidth;
-    this.canvas.height =  this.canvas.offsetHeight;
+    this.canvas.width =  this.mapWidth;
+    this.canvas.height =  this.mapHeight;
 
     this.scale = 1;
     this.canvasOffsetX = 0;
@@ -167,62 +168,76 @@ class Canvas extends Base {
       const y = event.clientY - get(this.mapPosition, 'top');
 
       const image = this.getPointInImages(x, y);
-      if (image) {
-        console.log('点击图标', image);
+      if (image) {  // 点击图标
         let imageX = image.x;
         let imageY = image.y;
         this.canvas.onmousemove = ev => {
-          image.x = imageX + (ev.clientX - event.clientX) / this.mapWidth;
-          image.y = imageY + (ev.clientY - event.clientY) / this.mapHeight;
-          this.drawAllImages();
+          image.x = imageX + (ev.clientX - event.clientX) / this.mapWidth / this.scale;
+          image.y = imageY + (ev.clientY - event.clientY) / this.mapHeight / this.scale;
+          this.draw();
         };
-        this.canvas.onmouseup = () => {
-          this.canvas.onmousemove = null;
-          this.canvas.onmouseup = null;
-        }
-      } else {
-        console.log('点击画布');
+      } else {  // 点击画布
         const canvasOffsetX = this.canvasOffsetX;
         const canvasOffsetY = this.canvasOffsetY;
         this.canvas.onmousemove = ev => {
           this.canvasOffsetX = canvasOffsetX + ev.clientX - event.clientX;
           this.canvasOffsetY = canvasOffsetY + ev.clientY - event.clientY;
-          this.drawAllImages();
+          this.draw();
         };
-        this.canvas.onmouseup = () => {
-          this.canvas.onmousemove = null;
-          this.canvas.onmouseup = null;
-        }
+      }
+      this.canvas.onmouseup = () => {
+        this.canvas.onmousemove = null;
+        this.canvas.onmouseup = null;
       }
     };
 
     this.canvas.onmousewheel = event => {
-      const wheelDelta = event.wheelDelta || event.deltalY * -40;
-      const x = event.clientX - get(this.mapPosition, 'left');
-      const y = event.clientY - get(this.mapPosition, 'top');
-      const newX = round((x - this.canvasOffsetX) / this.scale, 2);
-      const newY = round((y - this.canvasOffsetY) / this.scale, 2);
-      if (wheelDelta > 0) {
-        this.scale += 0.1;
-        this.scale = this.scale > this.maxScale ? this.maxScale : this.scale;
-      } else {
-        this.scale -= 0.1;
-        this.scale = this.scale < this.minScale ? this.minScale : this.scale;
-      }
-      this.canvasOffsetX = (1 - this.scale) * newX + (x - newX);
-      this.canvasOffsetY = (1 - this.scale) * newY + (y - newY);
-      this.drawAllImages();
+      this.mouseWheel(event);
+      event.preventDefault();
     };
   }
 
   /**
-   * 重绘所有图像
+   * canvas鼠标滚动，放大缩小
+   * @param event
    */
-  drawAllImages () {
-    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.data.forEach(item => {
-      this.drawImage(item);
-    })
+  mouseWheel (event) {
+    const wheelDelta = event.wheelDelta || event.deltalY * -40;
+    const x = event.clientX - get(this.mapPosition, 'left');
+    const y = event.clientY - get(this.mapPosition, 'top');
+    const { left, top } = this.transformPoint(x, y, 1);
+    if (wheelDelta > 0) {
+      this.scale += 0.05;
+      this.scale = this.scale > this.maxScale ? this.maxScale : this.scale;
+    } else {
+      this.scale -= 0.05;
+      this.scale = this.scale < this.minScale ? this.minScale : this.scale;
+    }
+    this.canvasOffsetX = (1 - this.scale) * left + (x - left);
+    this.canvasOffsetY = (1 - this.scale) * top + (y - top);
+    this.draw();
+  }
+
+  /**
+   * 验证坐标是否在图像对象上
+   * @param x
+   * @param y
+   * @returns {*}
+   */
+  getPointInImages (x, y) {
+    let pointImage;
+    for (let i = this.data.length - 1; i >= 0; i--) {
+      const image = this.data[i];
+      const { left, top } = this.transformPoint(
+        image.x * this.mapWidth,
+        image.y * this.mapHeight
+      );
+      if (x >= left && x < left + image.width && y >= top && y < top + image.height) {
+        pointImage = image;
+        break;
+      }
+    }
+    return pointImage;
   }
 
   /**
@@ -234,13 +249,13 @@ class Canvas extends Base {
     const list = document.querySelector(this.list);
     const img = list.querySelectorAll('img')[index];
     this.verifyCanvasOffset();
+    const { left, top } = this.transformPoint(x * this.mapWidth, y * this.mapHeight);
 
     this.context.drawImage(
       img,
       0, 0,
       img.width, img.height,
-      (x * this.canvas.width) * this.scale + this.canvasOffsetX,
-      (y * this.canvas.height) * this.scale + this.canvasOffsetY,
+      left, top,
       img.width * this.scale, img.height * this.scale
     );
   }
@@ -262,25 +277,43 @@ class Canvas extends Base {
   }
 
   /**
-   * 验证坐标是否在图像对象上
+   * 点坐标转换
    * @param x
    * @param y
-   * @returns {*}
+   * @param type number 0 坐标转放大后坐标 1 放大后坐标转坐标
+   * @returns {{top: number, left: number}}
    */
-  getPointInImages (x, y) {
-    let pointImage;
-    for (let i = this.data.length - 1; i >= 0; i--) {
-      const image = this.data[i];
-      const imageLeft = image.x * this.mapWidth;
-      const imageTop = image.y * this.mapHeight;
-      if (x >= imageLeft && x < imageLeft + image.width && y>= imageTop && y < imageTop + image.height) {
-        pointImage = image;
-        break;
+  transformPoint (x, y, type = 0) {
+    if (type) {
+      return {
+        left: round((x - this.canvasOffsetX) / this.scale, 2),
+        top: round((y - this.canvasOffsetY) / this.scale, 2)
+      }
+    } else {
+      return {
+        left: round(x * this.scale + this.canvasOffsetX, 2),
+        top: round(y * this.scale + this.canvasOffsetY, 2)
       }
     }
-    return pointImage;
   }
 
+  /**
+   * 重绘所有图像
+   */
+  draw () {
+    this.context.clearRect(0, 0, this.mapWidth, this.mapHeight);
+    this.data.forEach(item => {
+      this.drawImage(item);
+    })
+  }
+
+  /**
+   * 重新获取目标元素并绑定事件
+   */
+  refresh () {
+    this.initElements();
+    this.initCanvas();
+  }
 }
 
 export default Canvas;
