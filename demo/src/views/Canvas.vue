@@ -34,7 +34,22 @@ export default {
     initDragMap () {
       this.dragMap = new DragMap({
         type: 'canvas',
-        images: this.selectList
+        images: this.getImages()
+      });
+      /*this.dragMap.setData([{
+        index: 1,
+        x: 0.2,
+        y: 0.3,
+        width: 70,
+        height: 70
+      }]);
+      this.dragMap.draw();*/
+    },
+    getImages () {
+      return this.selectList.map(item => {
+        const image = new Image();
+        image.src = item.img;
+        return image;
       });
     }
   }

@@ -18,22 +18,23 @@ class Canvas extends Base {
    * 初始化事件对象
    */
   initElements () {
-    const list = document.querySelector(this.list);
     const map = document.querySelector(this.map);
-    if (!list) {
-      return console.warn('Object list not found:', this.list);
-    }
     if (!map) {
       return console.warn('Object map not found:', this.map);
+    }
+
+    this.mapWidth = map.offsetWidth;
+    this.mapHeight = map.offsetHeight;
+
+    const list = document.querySelector(this.list);
+    if (!list) {
+      return console.warn('Object list not found:', this.list);
     }
 
     const targets = list.querySelectorAll(this.target);
     if (!targets) {
       return console.warn('Object target not found:', this.target);
     }
-
-    this.mapWidth = map.offsetWidth;
-    this.mapHeight = map.offsetHeight;
 
     this.mapPosition = this.getPosition(map);
     this.bindEvents(map, targets);
@@ -246,8 +247,7 @@ class Canvas extends Base {
    */
   drawImage (data) {
     const { index, x, y } = data;
-    const list = document.querySelector(this.list);
-    const img = list.querySelectorAll('img')[index];
+    const img = this.images[index];
     this.verifyCanvasOffset();
     const { left, top } = this.transformPoint(x * this.mapWidth, y * this.mapHeight);
 
@@ -301,10 +301,33 @@ class Canvas extends Base {
    * 重绘所有图像
    */
   draw () {
-    this.context.clearRect(0, 0, this.mapWidth, this.mapHeight);
+    this.clear();
     this.data.forEach(item => {
       this.drawImage(item);
     })
+  }
+
+  /**
+   * 重置画布
+   */
+  clear () {
+    this.context.clearRect(0, 0, this.mapWidth, this.mapHeight);
+  }
+
+  /**
+   * set canvas data
+   * @param data
+   */
+  setData (data) {
+    this.data = data;
+  }
+
+  /**
+   * get canvas data
+   * @returns {*}
+   */
+  getData () {
+    return this.data;
   }
 
   /**
