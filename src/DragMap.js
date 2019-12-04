@@ -25,9 +25,6 @@ class DragMap {
 
     const listTargets = list.querySelectorAll(this.target);
     const mapTargets = map.querySelectorAll(this.target);
-    if (!listTargets || !listTargets.length) {
-      return console.warn('Object target not found:', this.target);
-    }
 
     this.mapWidth = map.offsetWidth;
     this.mapHeight = map.offsetHeight;
@@ -68,7 +65,9 @@ class DragMap {
    */
   bindTargetEvents (targets, action = 'add') {
     targets.forEach((target, index) => {
-      target.setAttribute('draggable', true);
+      if (target.getAttribute('draggable') === null) {
+        target.setAttribute('draggable', true);
+      }
       target.ondragstart = event => {
         this.action = action;
         this.activeIndex = index;
