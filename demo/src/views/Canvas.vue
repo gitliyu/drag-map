@@ -53,7 +53,7 @@ export default {
 <style lang="scss">
   .canvas {
     width: 80%;
-    height: 500px;
+    height: 600px;
     margin: 20px auto;
     padding: 10px;
     border: 1px solid #333;

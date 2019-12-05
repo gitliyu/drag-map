@@ -231,7 +231,9 @@ class Canvas extends Base {
       const image = new Image();
       image.src = bgImage;
       this.bgImage = image;
-      this.drawBgImage();
+      image.onload = () => {
+        this.drawBgImage();
+      };
     }
     this.images = images.map(item => {
       const image = new Image();
@@ -347,7 +349,7 @@ class Canvas extends Base {
       0, 0,
       this.bgImage.width, this.bgImage.height,
       left, top,
-      this.bgImage.width * this.scale, this.bgImage.height * this.scale
+      this.mapWidth * this.scale, this.mapHeight * this.scale
     );
   }
 
