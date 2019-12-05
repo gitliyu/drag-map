@@ -2,7 +2,7 @@
   <div class="canvas">
     <div id="drag-list">
       <div class="drag-target" v-for="(item, index) in selectList" :key="index">
-        <img :src="item.img">
+        <img :src="item.url">
       </div>
     </div>
 
@@ -24,7 +24,7 @@ export default {
   },
   created () {
     this.selectList = this.selectList.map(item => {
-      return { img: require(`../assets/image/icon-house-${item}.png`) };
+      return { url: require(`../assets/image/icon-house-${item}.png`) };
     });
   },
   mounted () {
@@ -34,7 +34,8 @@ export default {
     initDragMap () {
       this.dragMap = new DragMap({
         type: 'canvas',
-        images: this.getImages()
+        images: this.selectList,
+        bgImage: require('../assets/image/bg.png')
       });
       /*this.dragMap.setData([{
         index: 1,
@@ -44,13 +45,6 @@ export default {
         height: 70
       }]);
       this.dragMap.draw();*/
-    },
-    getImages () {
-      return this.selectList.map(item => {
-        const image = new Image();
-        image.src = item.img;
-        return image;
-      });
     }
   }
 }

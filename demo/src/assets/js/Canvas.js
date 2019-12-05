@@ -5,13 +5,13 @@ class Canvas extends Base {
 
   constructor (options = {}) {
     super(options);
-    this.images = get(options, 'images', []);
     this.data = get(options, 'data', []);
-    this.maxScale = get(options, 'maxScale', 2);
+    this.maxScale = get(options, 'maxScale', 3);
     this.minScale = get(options, 'minScale', 1);
 
     this.initElements();
     this.initCanvas();
+    this.initImages(options);
   }
 
   /**
@@ -220,6 +220,27 @@ class Canvas extends Base {
   }
 
   /**
+   * 初始化图像
+   * @param options
+   */
+  initImages (options) {
+    const bgImage = get(options, 'bgImage', '');
+    const images = get(options, 'images', []);
+
+    if (bgImage) {
+      const image = new Image();
+      image.src = bgImage;
+      this.bgImage = image;
+      this.drawBgImage();
+    }
+    this.images = images.map(item => {
+      const image = new Image();
+      image.src = item.url;
+      return image;
+    });
+  }
+
+  /**
    * 验证坐标是否在图像对象上
    * @param x
    * @param y
@@ -248,7 +269,6 @@ class Canvas extends Base {
   drawImage (data) {
     const { index, x, y } = data;
     const img = this.images[index];
-    this.verifyCanvasOffset();
     const { left, top } = this.transformPoint(x * this.mapWidth, y * this.mapHeight);
 
     this.context.drawImage(
@@ -301,6 +321,7 @@ class Canvas extends Base {
    * 重绘所有图像
    */
   draw () {
+    this.verifyCanvasOffset();
     this.clear();
     this.data.forEach(item => {
       this.drawImage(item);
@@ -312,6 +333,22 @@ class Canvas extends Base {
    */
   clear () {
     this.context.clearRect(0, 0, this.mapWidth, this.mapHeight);
+    this.drawBgImage();
+  }
+
+  /**
+   * 绘制背景图
+   */
+  drawBgImage () {
+    const { left, top } = this.transformPoint(0, 0);
+
+    this.context.drawImage(
+      this.bgImage,
+      0, 0,
+      this.bgImage.width, this.bgImage.height,
+      left, top,
+      this.bgImage.width * this.scale, this.bgImage.height * this.scale
+    );
   }
 
   /**
