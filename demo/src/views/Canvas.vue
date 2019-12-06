@@ -35,16 +35,21 @@ export default {
       this.dragMap = new DragMap({
         type: 'canvas',
         images: this.selectList,
-        bgImage: require('../assets/image/bg.png')
+        bgImage: require('../assets/image/bg.png'),
+        data: [{
+          index: 1,
+          x: 0.2,
+          y: 0.3,
+          width: 70,
+          height: 70
+        },{
+          index: 2,
+          x: 0.5,
+          y: 0.6,
+          width: 70,
+          height: 70
+        }]
       });
-      /*this.dragMap.setData([{
-        index: 1,
-        x: 0.2,
-        y: 0.3,
-        width: 70,
-        height: 70
-      }]);
-      this.dragMap.draw();*/
     }
   }
 }

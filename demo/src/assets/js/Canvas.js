@@ -228,18 +228,11 @@ class Canvas extends Base {
     const images = get(options, 'images', []);
 
     if (bgImage) {
-      const image = new Image();
-      image.src = bgImage;
-      this.bgImage = image;
-      image.onload = () => {
-        this.drawBgImage();
-      };
+      this.setBgImage(bgImage);
     }
-    this.images = images.map(item => {
-      const image = new Image();
-      image.src = item.url;
-      return image;
-    });
+    this.setImages(images).then(() => {
+      this.draw();
+    })
   }
 
   /**
@@ -325,6 +318,9 @@ class Canvas extends Base {
   draw () {
     this.verifyCanvasOffset();
     this.clear();
+    if (!this.data) {
+      return;
+    }
     this.data.forEach(item => {
       this.drawImage(item);
     })
@@ -367,6 +363,44 @@ class Canvas extends Base {
    */
   getData () {
     return this.data;
+  }
+
+  /**
+   * 设置背景图
+   * @param bgImage
+   */
+  setBgImage (bgImage) {
+    const image = new Image();
+    image.src = bgImage;
+    this.bgImage = image;
+    image.onload = () => {
+      this.draw();
+    };
+  }
+
+  /**
+   * 设置图片，返回Promise，等待所有图片加载完成
+   * @param images
+   * @returns {Promise<any>}
+   */
+  setImages (images = []) {
+    let imgResolve;
+    let loadCount = 0;
+    this.images = images.map(item => {
+      const image = new Image();
+      image.src = item.url;
+      image.onload = () => {
+        loadCount++;
+        if (loadCount === images.length) {
+          imgResolve();
+        }
+      };
+      return image;
+    });
+
+    return new Promise(resolve => {
+      imgResolve = resolve;
+    });
   }
 
   /**
