@@ -164,6 +164,7 @@ class Canvas extends Base {
    * 绑定canvas事件
    */
   bindCanvasEvent () {
+    let timeoutEvent = 0;
     this.canvas.onmousedown = event => {
       const x = event.clientX - get(this.mapPosition, 'left');
       const y = event.clientY - get(this.mapPosition, 'top');
@@ -173,6 +174,8 @@ class Canvas extends Base {
         let imageX = image.x;
         let imageY = image.y;
         this.canvas.onmousemove = ev => {
+          clearTimeout(timeoutEvent);
+          timeoutEvent = 0;
           image.x = imageX + (ev.clientX - event.clientX) / this.mapWidth / this.scale;
           image.y = imageY + (ev.clientY - event.clientY) / this.mapHeight / this.scale;
           this.draw();
@@ -181,14 +184,23 @@ class Canvas extends Base {
         const canvasOffsetX = this.canvasOffsetX;
         const canvasOffsetY = this.canvasOffsetY;
         this.canvas.onmousemove = ev => {
+          clearTimeout(timeoutEvent);
+          timeoutEvent = 0;
           this.canvasOffsetX = canvasOffsetX + ev.clientX - event.clientX;
           this.canvasOffsetY = canvasOffsetY + ev.clientY - event.clientY;
           this.draw();
         };
       }
+
+      timeoutEvent = setTimeout(() => { timeoutEvent = 0; }, 500);
+
       this.canvas.onmouseup = () => {
         this.canvas.onmousemove = null;
         this.canvas.onmouseup = null;
+        clearTimeout(timeoutEvent);
+        if(timeoutEvent && image){
+          console.log('点击', image);
+        }
       }
     };
 
