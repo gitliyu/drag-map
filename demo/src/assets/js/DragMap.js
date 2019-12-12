@@ -3,13 +3,13 @@ import Position from './Position'
 
 class DragMap {
 
-  constructor (options = {}) {
-    const { type } = options;
+  constructor (params = {}) {
+    const { type } = params;
 
     if (type === 'canvas') {
-      return new Canvas(options);
+      return new Canvas(params);
     } else {
-      return new Position(options);
+      return new Position(params);
     }
   }
 }

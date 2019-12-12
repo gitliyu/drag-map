@@ -3,8 +3,8 @@ import { get, round } from './utils'
 
 class Position extends Base {
 
-  constructor (options = {}) {
-    super(options);
+  constructor (params = {}) {
+    super(params);
 
     this.initElements();
   }

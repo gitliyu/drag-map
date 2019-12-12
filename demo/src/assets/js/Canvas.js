@@ -3,15 +3,16 @@ import { get, round } from './utils';
 
 class Canvas extends Base {
 
-  constructor (options = {}) {
-    super(options);
-    this.data = get(options, 'data', []);
-    this.maxScale = get(options, 'maxScale', 3);
-    this.minScale = get(options, 'minScale', 1);
+  constructor (params = {}) {
+    super(params);
+    this.options = get(params, 'options', []);
+    this.data = get(params, 'data', []);
+    this.maxScale = get(params, 'maxScale', 3);
+    this.minScale = get(params, 'minScale', 1);
 
     this.initElements();
     this.initCanvas();
-    this.initImages(options);
+    this.initImages(params);
   }
 
   /**
@@ -121,13 +122,15 @@ class Canvas extends Base {
     const percentX = round(left / this.mapWidth, 4);
     const percentY = round(top / this.mapHeight, 4);
 
-    const dropData = {
-      index: this.activeIndex,
+    const baseData = {...(this.options[this.activeIndex] || {})};
+    delete baseData.image;
+    delete baseData.url;
+    const dropData = {...baseData, ...{
       x: percentX,
       y: percentY,
       width: this.activeTarget.width,
       height: this.activeTarget.height
-    };
+    }};
     this.data.push(dropData);
     this.drawImage(dropData);
 
@@ -199,7 +202,8 @@ class Canvas extends Base {
         this.canvas.onmouseup = null;
         clearTimeout(timeoutEvent);
         if(timeoutEvent && image){
-          console.log('点击', image);
+          this.emit('click', image);
+          console.log(image)
         }
       }
     };
@@ -233,16 +237,15 @@ class Canvas extends Base {
 
   /**
    * 初始化图像
-   * @param options
+   * @param params
    */
-  initImages (options) {
-    const bgImage = get(options, 'bgImage', '');
-    const images = get(options, 'images', []);
+  initImages (params) {
+    const bgImage = get(params, 'bgImage', '');
 
     if (bgImage) {
       this.setBgImage(bgImage);
     }
-    this.setImages(images).then(() => {
+    this.setOptions(this.options).then(() => {
       this.draw();
     })
   }
@@ -274,16 +277,16 @@ class Canvas extends Base {
    * @param data
    */
   drawImage (data) {
-    const { index, x, y } = data;
-    const img = this.images[index];
+    const { id, x, y } = data;
+    const { image } = this.options.find(item => item.id === id);
     const { left, top } = this.transformPoint(x * this.mapWidth, y * this.mapHeight);
 
     this.context.drawImage(
-      img,
+      image,
       0, 0,
-      img.width, img.height,
+      image.width, image.height,
       left, top,
-      img.width * this.scale, img.height * this.scale
+      image.width * this.scale, image.height * this.scale
     );
   }
 
@@ -392,22 +395,23 @@ class Canvas extends Base {
 
   /**
    * 设置图片，返回Promise，等待所有图片加载完成
-   * @param images
+   * @param options
    * @returns {Promise<any>}
    */
-  setImages (images = []) {
+  setOptions (options = []) {
     let imgResolve;
     let loadCount = 0;
-    this.images = images.map(item => {
+    this.options = [...options].map(item => {
       const image = new Image();
       image.src = item.url;
       image.onload = () => {
         loadCount++;
-        if (loadCount === images.length) {
+        if (loadCount === options.length) {
           imgResolve();
         }
       };
-      return image;
+      item.image = image;
+      return item;
     });
 
     return new Promise(resolve => {

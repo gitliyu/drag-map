@@ -24,7 +24,10 @@ export default {
   },
   created () {
     this.selectList = this.selectList.map(item => {
-      return { url: require(`../assets/image/icon-house-${item}.png`) };
+      return {
+        id: item,
+        url: require(`../assets/image/icon-house-${item}.png`)
+      };
     });
   },
   mounted () {
@@ -34,16 +37,16 @@ export default {
     initDragMap () {
       this.dragMap = new DragMap({
         type: 'canvas',
-        images: this.selectList,
+        options: this.selectList,
         bgImage: require('../assets/image/bg.png'),
         data: [{
-          index: 1,
+          id: 1,
           x: 0.2,
           y: 0.3,
           width: 70,
           height: 70
         },{
-          index: 2,
+          id: 2,
           x: 0.5,
           y: 0.6,
           width: 70,
