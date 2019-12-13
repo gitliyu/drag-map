@@ -25,7 +25,7 @@ export default {
   created () {
     this.selectList = this.selectList.map(item => {
       return {
-        id: item,
+        key: item,
         url: require(`../assets/image/icon-house-${item}.png`)
       };
     });
@@ -40,13 +40,13 @@ export default {
         options: this.selectList,
         bgImage: require('../assets/image/bg.png'),
         data: [{
-          id: 1,
+          key: 1,
           x: 0.2,
           y: 0.3,
           width: 70,
           height: 70
         },{
-          id: 2,
+          key: 2,
           x: 0.5,
           y: 0.6,
           width: 70,

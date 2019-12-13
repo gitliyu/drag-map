@@ -9,7 +9,9 @@ class Canvas extends Base {
     this.data = get(params, 'data', []);
     this.maxScale = get(params, 'maxScale', 3);
     this.minScale = get(params, 'minScale', 1);
+    this.readonly = get(params, 'readonly', false);
 
+    this.setImageSize();
     this.initElements();
     this.initCanvas();
     this.initImages(params);
@@ -89,9 +91,7 @@ class Canvas extends Base {
    * @param event
    */
   onDragStart (event) {
-    this.emit('dragstart', {
-      index: this.activeIndex
-    }, event);
+    this.emit('dragstart', this.getOptionBaseData(), event);
   }
 
   /**
@@ -99,7 +99,7 @@ class Canvas extends Base {
    * @param event
    */
   onDragEnter (event) {
-    this.emit('dragenter', event);
+    this.emit('dragenter', this.getOptionBaseData(), event);
   }
 
   /**
@@ -107,7 +107,7 @@ class Canvas extends Base {
    * @param event
    */
   onDragOver (event) {
-    this.emit('dragover', event);
+    this.emit('dragover', this.getOptionBaseData(), event);
     event.preventDefault();
   }
 
@@ -122,14 +122,13 @@ class Canvas extends Base {
     const percentX = round(left / this.mapWidth, 4);
     const percentY = round(top / this.mapHeight, 4);
 
-    const baseData = {...(this.options[this.activeIndex] || {})};
-    delete baseData.image;
-    delete baseData.url;
+    const baseData = this.getOptionBaseData();
+    const { image } = this.getActiveOption();
     const dropData = {...baseData, ...{
       x: percentX,
       y: percentY,
-      width: this.activeTarget.width,
-      height: this.activeTarget.height
+      width: this.imageSize.width || image.width,
+      height: this.imageSize.height || image.height
     }};
     this.data.push(dropData);
     this.drawImage(dropData);
@@ -142,9 +141,26 @@ class Canvas extends Base {
    * @param event
    */
   onDragLeave (event) {
-    this.emit('dragleave', {
-      index: this.activeIndex
-    }, event);
+    this.emit('dragleave', this.getOptionBaseData(), event);
+  }
+
+  /**
+   * 整理当前选中对象数据
+   */
+  getOptionBaseData () {
+    const baseData = this.getActiveOption();
+    delete baseData.image;
+    delete baseData.url;
+
+    return baseData;
+  }
+
+  /**
+   * 获取当前选中对象数据
+   * @returns {{}}
+   */
+  getActiveOption () {
+    return {...(this.options[this.activeIndex] || {})};
   }
 
   /**
@@ -167,43 +183,24 @@ class Canvas extends Base {
    * 绑定canvas事件
    */
   bindCanvasEvent () {
-    let timeoutEvent = 0;
     this.canvas.onmousedown = event => {
       const x = event.clientX - get(this.mapPosition, 'left');
       const y = event.clientY - get(this.mapPosition, 'top');
 
       const image = this.getPointInImages(x, y);
       if (image) {  // 点击图标
-        let imageX = image.x;
-        let imageY = image.y;
-        this.canvas.onmousemove = ev => {
-          clearTimeout(timeoutEvent);
-          timeoutEvent = 0;
-          image.x = imageX + (ev.clientX - event.clientX) / this.mapWidth / this.scale;
-          image.y = imageY + (ev.clientY - event.clientY) / this.mapHeight / this.scale;
-          this.draw();
-        };
+        this.mouseMoveImage(image, event);
       } else {  // 点击画布
-        const canvasOffsetX = this.canvasOffsetX;
-        const canvasOffsetY = this.canvasOffsetY;
-        this.canvas.onmousemove = ev => {
-          clearTimeout(timeoutEvent);
-          timeoutEvent = 0;
-          this.canvasOffsetX = canvasOffsetX + ev.clientX - event.clientX;
-          this.canvasOffsetY = canvasOffsetY + ev.clientY - event.clientY;
-          this.draw();
-        };
+        this.mouseMoveCanvas(event);
       }
 
-      timeoutEvent = setTimeout(() => { timeoutEvent = 0; }, 500);
-
+      this.clickTimeout = setTimeout(() => { this.clickTimeout = 0; }, 500);
       this.canvas.onmouseup = () => {
         this.canvas.onmousemove = null;
         this.canvas.onmouseup = null;
-        clearTimeout(timeoutEvent);
-        if(timeoutEvent && image){
+        clearTimeout(this.clickTimeout);
+        if(this.clickTimeout && image){
           this.emit('click', image);
-          console.log(image)
         }
       }
     };
@@ -211,6 +208,42 @@ class Canvas extends Base {
     this.canvas.onmousewheel = event => {
       this.mouseWheel(event);
       event.preventDefault();
+    };
+  }
+
+  /**
+   * 画布图像拖拽事件
+   * @param image
+   * @param event
+   */
+  mouseMoveImage (image, event) {
+    if (this.readonly) {
+      return;
+    }
+    let imageX = image.x;
+    let imageY = image.y;
+    this.canvas.onmousemove = ev => {
+      clearTimeout(this.clickTimeout);
+      this.clickTimeout = 0;
+      image.x = imageX + (ev.clientX - event.clientX) / this.mapWidth / this.scale;
+      image.y = imageY + (ev.clientY - event.clientY) / this.mapHeight / this.scale;
+      this.draw();
+    };
+  }
+
+  /**
+   * 画布背景拖拽事件
+   * @param event
+   */
+  mouseMoveCanvas (event) {
+    const canvasOffsetX = this.canvasOffsetX;
+    const canvasOffsetY = this.canvasOffsetY;
+    this.canvas.onmousemove = ev => {
+      clearTimeout(this.clickTimeout);
+      this.clickTimeout = 0;
+      this.canvasOffsetX = canvasOffsetX + ev.clientX - event.clientX;
+      this.canvasOffsetY = canvasOffsetY + ev.clientY - event.clientY;
+      this.draw();
     };
   }
 
@@ -277,8 +310,8 @@ class Canvas extends Base {
    * @param data
    */
   drawImage (data) {
-    const { id, x, y } = data;
-    const { image } = this.options.find(item => item.id === id);
+    const { key, x, y, width, height } = data;
+    const { image } = this.options.find(item => item.key === key);
     const { left, top } = this.transformPoint(x * this.mapWidth, y * this.mapHeight);
 
     this.context.drawImage(
@@ -286,7 +319,8 @@ class Canvas extends Base {
       0, 0,
       image.width, image.height,
       left, top,
-      image.width * this.scale, image.height * this.scale
+      (width || image.width) * this.scale,
+      (height || image.height) * this.scale
     );
   }
 
@@ -316,13 +350,13 @@ class Canvas extends Base {
   transformPoint (x, y, type = 0) {
     if (type) {
       return {
-        left: round((x - this.canvasOffsetX) / this.scale, 2),
-        top: round((y - this.canvasOffsetY) / this.scale, 2)
+        left: round((x - this.canvasOffsetX) / this.scale, 4),
+        top: round((y - this.canvasOffsetY) / this.scale, 4)
       }
     } else {
       return {
-        left: round(x * this.scale + this.canvasOffsetX, 2),
-        top: round(y * this.scale + this.canvasOffsetY, 2)
+        left: round(x * this.scale + this.canvasOffsetX, 4),
+        top: round(y * this.scale + this.canvasOffsetY, 4)
       }
     }
   }
@@ -365,22 +399,6 @@ class Canvas extends Base {
   }
 
   /**
-   * set canvas data
-   * @param data
-   */
-  setData (data) {
-    this.data = data;
-  }
-
-  /**
-   * get canvas data
-   * @returns {*}
-   */
-  getData () {
-    return this.data;
-  }
-
-  /**
    * 设置背景图
    * @param bgImage
    */
@@ -417,6 +435,62 @@ class Canvas extends Base {
     return new Promise(resolve => {
       imgResolve = resolve;
     });
+  }
+
+  /**
+   * 设置画布位点数据
+   * @param data
+   */
+  setData (data) {
+    this.data = data;
+  }
+
+  /**
+   * 获取画布位点数据
+   * @returns {*}
+   */
+  getData () {
+    return this.data;
+  }
+
+  /**
+   * 设置缩放率
+   * @param scale
+   */
+  setScale (scale) {
+    const x = this.mapWidth * 0.5;
+    const y = this.mapHeight * 0.5;
+    const { left, top } = this.transformPoint(x, y, 1);
+    if (scale > this.maxScale) {
+      this.scale = this.maxScale;
+    } else if (scale < this.minScale) {
+      this.scale = this.minScale;
+    } else {
+      this.scale = scale;
+    }
+    this.canvasOffsetX = (1 - this.scale) * left + (x - left);
+    this.canvasOffsetY = (1 - this.scale) * top + (y - top);
+    this.draw();
+  }
+
+  /**
+   * 获取缩放率
+   * @returns {number|*}
+   */
+  getScale () {
+    return this.scale;
+  }
+
+  /**
+   * 设置位点图像大小
+   * @param width
+   * @param height
+   */
+  setImageSize (width = 0, height = 0) {
+    this.imageSize = {
+      width,
+      height: height || width
+    }
   }
 
   /**

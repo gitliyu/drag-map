@@ -2,15 +2,16 @@ import { get } from './utils';
 
 class Base {
 
-  constructor (options = {}) {
+  constructor (params = {}) {
     this.handlers = [];
-    this.initOptions(options);
+    this.initParams(params);
   }
 
-  initOptions (options) {
-    this.list = get(options, 'list', '#drag-list');
-    this.map = get(options, 'map', '#drag-map');
-    this.target = get(options, 'target', '.drag-target');
+  initParams (params) {
+    this.params = params || {};
+    this.list = get(params, 'list', '#drag-list');
+    this.map = get(params, 'map', '#drag-map');
+    this.target = get(params, 'target', '.drag-target');
   }
 
   /**
