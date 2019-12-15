@@ -32,7 +32,7 @@ class Position extends Base {
     this.mapHeight = map.offsetHeight;
 
     this.targets = [...listTargets, ...mapTargets];
-    this.mapPosition = this.getPosition(map);
+    this.getMapPosition(map);
     this.bindEvents(map, listTargets, mapTargets);
   }
 

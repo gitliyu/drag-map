@@ -39,7 +39,7 @@ class Canvas extends Base {
       return console.warn('Object target not found:', this.target);
     }
 
-    this.mapPosition = this.getPosition(map);
+    this.getMapPosition(map);
     this.bindEvents(map, targets);
   }
 
@@ -297,7 +297,9 @@ class Canvas extends Base {
         image.x * this.mapWidth,
         image.y * this.mapHeight
       );
-      if (x >= left && x < left + image.width && y >= top && y < top + image.height) {
+      const width = image.width * this.scale;
+      const height = image.height * this.scale;
+      if (x >= left && x < left + width  && y >= top && y < top + height) {
         pointImage = image;
         break;
       }
@@ -412,7 +414,7 @@ class Canvas extends Base {
   }
 
   /**
-   * 设置图片，返回Promise，等待所有图片加载完成
+   * 设置选项列表，返回Promise，等待所有图片加载完成
    * @param options
    * @returns {Promise<any>}
    */

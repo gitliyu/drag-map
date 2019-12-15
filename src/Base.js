@@ -7,6 +7,10 @@ class Base {
     this.initParams(params);
   }
 
+  /**
+   * 初始化参数
+   * @param params
+   */
   initParams (params) {
     this.params = params || {};
     this.list = get(params, 'list', '#drag-list');
@@ -43,6 +47,18 @@ class Base {
       fn.forEach(item => {
         item(...params);
       })
+    }
+  }
+
+  /**
+   * 获取并监听地图偏移
+   * @param map
+   */
+  getMapPosition (map) {
+    this.mapPosition = this.getPosition(map);
+
+    document.onscroll = () => {
+      this.mapPosition = this.getPosition(map);
     }
   }
 

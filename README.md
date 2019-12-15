@@ -1,13 +1,17 @@
 # drag-map
 
-拖拽定位工具类，提供了拖拽方法的封装，事件发送以及位点数据的计算
+拖拽定位工具类，主要应用场景为各种IOT项目的示意图，设备定位功能
 
-主要应用场景为各种IOT项目的示意图，设备定位功能
+目前分为两种模式
+
+- 定位：绝对定位版本，比较简易，主要提供了拖拽方法，事件发送和位点绝对定位数据的转换，不包含对dom结构和数据的管理
+- Canvas：地图由`Canvas`绘制，支持拖拽和缩放，相比定位版，使用起来更加方便
+
 
 ### Demo
 Demo: ['https://www.liyu.fun/demo/drag-map'](https://www.liyu.fun/demo/drag-map)
 
-Demo源码示例： ['Position.vue'](https://github.com/gitliyu/drag-map/blob/master/demo/src/views/Position.vue)
+Demo源码示例： ['定位'](https://github.com/gitliyu/drag-map/blob/master/demo/src/views/Position.vue) ['Canvas'](https://github.com/gitliyu/drag-map/blob/master/demo/src/views/Canvas.vue)
 
 ### 安装
 ```
@@ -28,6 +32,21 @@ new DragMap({
   target: '.drag-target'  // 拖拽目标
 })
 ```
+Canvas版本可接受更多参数
+```javascript
+new DragMap({
+  ...{ baseParams },
+  type: 'canvas', // 使用canvas版本时必须设置
+  options: {},  // 可选区域的数据列表
+  bgImage: 'xxx.com/bg.png',  // 背景图片地址
+  maxScale: 3,  // 最大放大倍数，默认为3
+  minScale: 1,  // 最小缩放倍数，默认为1
+  readonly: false,  // 只读模式
+  data: []  // 初始化的数据
+})
+```
+> `options`和`data`具体的数据结构可以查看demo
+
 默认html结构为
 ```html
 <div id="drag-list">
@@ -36,7 +55,10 @@ new DragMap({
   <div class="drag-target">3</div>
 </div>
 
+<!-- 定位 -->
 <div id="drag-map"></div>
+<!-- Canvas -->
+<canvas id="drag-map"></canvas>
 ```
 
 ### 事件
@@ -61,6 +83,7 @@ dragMap.on('dragleave', data => {
 
 事件回调参数有两个，第一个参数格式如下，第二个参数为原生`drag`事件参数
 ```javascript
+// 定位
 {
   action: 'add'   // 操作类型 'add'|'edit'
   index: 1  // 拖拽对象索引值
@@ -71,7 +94,33 @@ dragMap.on('dragleave', data => {
   style: 'left: 155px;top: 106px;', // style字符串
   percentStyle: 'left: 10.18%;top: 27.04%;' // 百分比style字符串
 }
+// canvas
+{
+  ...{ optionData },  // options原本的data
+  x: 0.2, // 横坐标 保留4位
+  y: 0.3, // 纵坐标
+  width: 70,  // 位点图像宽度
+  height: 70  // 位点图像高度
+}
 ```
 
 ### 方法
-***refresh()*** 当dom元素发生变化后调用，重新刷新dom节点并绑定事件
+- ***refresh()*** 当dom元素发生变化后调用，重新刷新dom节点并绑定事件
+
+以下方法只有`Canvas`版本可用
+- ***draw()*** 重绘画布
+- ***setBgImage(url)*** 设置背景图
+- ***setOptions(options)*** 设置可选项数据，返回`Promise`，设置后需要等待图片加载完成再进行下一步
+```javascript
+dragMap.setOptions(options).then(() => {
+  // do something
+})
+```
+- ***setData(data)*** 设置位点数据
+- ***getData()*** 获取位点数据
+- ***setScale(scale)*** 设置当前缩放倍数
+- ***getScale()*** 获取当前缩放倍数
+- ***setImageSize(width, height)*** 设置位点图片大小，默认为图片本身大小,`height`不传时默认和`width`相同
+```javascript
+dragMap.setImageSize(70)
+```

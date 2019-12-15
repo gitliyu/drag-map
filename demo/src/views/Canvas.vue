@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import DragMap from '../assets/js/DragMap';
+import DragMap from 'drag-map';
 
 export default {
   components: {},
@@ -25,7 +25,7 @@ export default {
   created () {
     this.selectList = this.selectList.map(item => {
       return {
-        key: item,
+        key: item,  // key值必须设置，作为唯一标识符
         url: require(`../assets/image/icon-house-${item}.png`)
       };
     });
