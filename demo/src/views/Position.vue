@@ -1,5 +1,5 @@
 <template>
-  <div class="position">
+  <div class="position-page">
     <div id="drag-list">
       <div class="drag-target" v-for="(item, index) in selectList" :key="index">
         <svg class="icon svg-icon" aria-hidden="true">
@@ -77,7 +77,7 @@ export default {
 </script>
 
 <style lang="scss">
-  .position {
+  .position-page {
     width: 80%;
     height: 600px;
     margin: 20px auto;

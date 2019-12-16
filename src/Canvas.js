@@ -133,7 +133,7 @@ class Canvas extends Base {
     this.data.push(dropData);
     this.drawImage(dropData);
 
-    this.emit('drop', event);
+    this.emit('drop', dropData, event);
   }
 
   /**
@@ -445,6 +445,7 @@ class Canvas extends Base {
    */
   setData (data) {
     this.data = data;
+    this.draw();
   }
 
   /**
@@ -493,6 +494,14 @@ class Canvas extends Base {
       width,
       height: height || width
     }
+  }
+
+  /**
+   * 设置只读
+   * @param readonly
+   */
+  setReadonly (readonly = false) {
+    this.readonly = readonly;
   }
 
   /**
