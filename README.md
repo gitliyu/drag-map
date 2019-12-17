@@ -41,6 +41,7 @@ new DragMap({
   bgImage: 'xxx.com/bg.png',  // 背景图片地址
   maxScale: 3,  // 最大放大倍数，默认为3
   minScale: 1,  // 最小缩放倍数，默认为1
+  scaleStep: 0.05, // 鼠标滑轮每次缩放比例, 默认为0.05
   readonly: false,  // 只读模式
   data: []  // 初始化的数据
 })
@@ -81,6 +82,10 @@ dragMap.on('dragleave', data => {
 - ***drop*** 拖拽完成
 - ***dragleave*** 拖拽离开目标区域
 
+Canvas版本有更多时间
+
+- ***click*** 点击位点图像
+
 事件回调参数有两个，第一个参数格式如下，第二个参数为原生`drag`事件参数
 ```javascript
 // 定位
@@ -119,8 +124,9 @@ dragMap.setOptions(options).then(() => {
 - ***setData(data)*** 设置位点数据
 - ***getData()*** 获取位点数据
 - ***setScale(scale)*** 设置当前缩放倍数
-- ***getScale()*** 获取当前缩放倍数
+- ***setScaleStep(step)*** 设置每次缩放比例，默认`0.05`
 - ***setImageSize(width, height)*** 设置位点图片大小，默认为图片本身大小,`height`不传时默认和`width`相同
 ```javascript
 dragMap.setImageSize(70)
 ```
+- ***clear()*** 清空数据并重置画布，保留背景图

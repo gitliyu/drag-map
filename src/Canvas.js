@@ -9,6 +9,7 @@ class Canvas extends Base {
     this.data = get(params, 'data', []);
     this.maxScale = get(params, 'maxScale', 3);
     this.minScale = get(params, 'minScale', 1);
+    this.scaleStep = get(params, 'scaleStep', 0.05);
     this.readonly = get(params, 'readonly', false);
 
     this.setImageSize();
@@ -197,9 +198,9 @@ class Canvas extends Base {
       }
 
       this.clickTimeout = setTimeout(() => { this.clickTimeout = 0; }, 500);
-      this.canvas.onmouseup = () => {
+      document.onmouseup = () => {
         this.canvas.onmousemove = null;
-        this.canvas.onmouseup = null;
+        document.onmouseup = null;
         clearTimeout(this.clickTimeout);
         if(this.clickTimeout && image){
           this.emit('click', image);
@@ -220,15 +221,15 @@ class Canvas extends Base {
    */
   mouseMoveImage (image, event) {
     if (this.readonly) {
-      return;
+      return this.mouseMoveCanvas(event);
     }
     let imageX = image.x;
     let imageY = image.y;
     this.canvas.onmousemove = ev => {
       clearTimeout(this.clickTimeout);
       this.clickTimeout = 0;
-      image.x = imageX + (ev.clientX - event.clientX) / this.mapWidth / this.scale;
-      image.y = imageY + (ev.clientY - event.clientY) / this.mapHeight / this.scale;
+      image.x = round(imageX + (ev.clientX - event.clientX) / this.mapWidth / this.scale, 4);
+      image.y = round(imageY + (ev.clientY - event.clientY) / this.mapHeight / this.scale, 4);
       this.draw();
     };
   }
@@ -259,10 +260,10 @@ class Canvas extends Base {
     const y = event.clientY - get(this.mapPosition, 'top');
     const { left, top } = this.transformPoint(x, y, 1);
     if (wheelDelta > 0) {
-      this.scale += 0.05;
+      this.scale += this.scaleStep;
       this.scale = this.scale > this.maxScale ? this.maxScale : this.scale;
     } else {
-      this.scale -= 0.05;
+      this.scale -= this.scaleStep;
       this.scale = this.scale < this.minScale ? this.minScale : this.scale;
     }
     this.canvasOffsetX = (1 - this.scale) * left + (x - left);
@@ -370,7 +371,7 @@ class Canvas extends Base {
    */
   draw () {
     this.verifyCanvasOffset();
-    this.clear();
+    this.clearMap();
     if (!this.data) {
       return;
     }
@@ -382,7 +383,7 @@ class Canvas extends Base {
   /**
    * 重置画布
    */
-  clear () {
+  clearMap () {
     this.context.clearRect(0, 0, this.mapWidth, this.mapHeight);
     this.drawBgImage();
   }
@@ -479,14 +480,6 @@ class Canvas extends Base {
   }
 
   /**
-   * 获取缩放率
-   * @returns {number|*}
-   */
-  getScale () {
-    return this.scale;
-  }
-
-  /**
    * 设置位点图像大小
    * @param width
    * @param height
@@ -504,6 +497,22 @@ class Canvas extends Base {
    */
   setReadonly (readonly = false) {
     this.readonly = readonly;
+  }
+
+  /**
+   * 设置每次缩放比例
+   * @param step
+   */
+  setScaleStep (step = 0.05) {
+    this.scaleStep = step;
+  }
+
+  /**
+   * 清空数据并重置画布
+   */
+  clear () {
+    this.data = [];
+    this.draw();
   }
 
   /**

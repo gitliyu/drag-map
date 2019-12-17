@@ -20,8 +20,17 @@
         </el-option>
       </el-select>
 
-      <h3>放大率</h3>
-      <el-input-number v-model="params.scale" @change="onChangeScale" :min="1" :max="3" :step="0.1"></el-input-number>
+      <h3>放大缩放</h3>
+      <div class="pb-10">
+        <span>比率：</span>
+        <el-input-number v-model="params.scale" @change="onChangeScale"
+                            size="small" :min="1" :max="3" :step="params.scaleStep"></el-input-number>
+      </div>
+      <div>
+        <span>单次速率：</span>
+        <el-input-number v-model="params.scaleStep" @change="onChangeScaleStep"
+                              size="small" :min="0.01" :max="0.3" :step="0.01"></el-input-number>
+      </div>
 
       <h3>位点尺寸</h3>
       <el-input type="number" v-model="params.size" @change="onChangeSize">
@@ -33,6 +42,9 @@
 
       <h3>只读模式</h3>
       <el-switch v-model="params.readonly" @change="onChangeReadonly"></el-switch>
+
+      <h3>其他</h3>
+      <el-button @click="onClear">重置</el-button>
     </div>
   </div>
 </template>
@@ -51,6 +63,7 @@ export default {
       params: {
         bgImage: 0,
         scale: 1,
+        scaleStep: 0.05,
         size: 70,
         readonly: false
       }
@@ -77,7 +90,7 @@ export default {
       });
 
       this.dragMap.on('drop', data => {
-        this.$message.success(`成功添加位点信息 key: ${data.key}, x: ${data.x}, y: ${data.y}, width: ${data.width}, y: ${data.y}`)
+        this.$message.success(`成功添加位点信息 key: ${data.key}, x: ${data.x}, y: ${data.y}, width: ${data.width}, height: ${data.height}`)
       });
 
       this.dragMap.on('click', data => {
@@ -98,6 +111,9 @@ export default {
     onChangeScale (val) {
       this.dragMap.setScale(val);
     },
+    onChangeScaleStep (val) {
+      this.dragMap.setScaleStep(val);
+    },
     onChangeSize (val) {
       this.dragMap.setImageSize(val);
     },
@@ -117,6 +133,10 @@ export default {
     },
     onChangeReadonly (val) {
       this.dragMap.setReadonly(val);
+    },
+    onClear () {
+      this.dragMap.clear();
+      this.$message.success('已重置所有位点数据')
     }
   }
 }
@@ -169,6 +189,10 @@ export default {
       left: -25%;
       top: 10px;
       width: 20%;
+    }
+
+    .pb-10 {
+      padding-bottom: 10px;
     }
   }
 </style>
