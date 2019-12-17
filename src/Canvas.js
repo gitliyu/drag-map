@@ -1,5 +1,5 @@
 import Base from './Base';
-import { get, round } from './utils';
+import { get, round, clone } from './utils';
 
 class Canvas extends Base {
 
@@ -124,16 +124,16 @@ class Canvas extends Base {
 
     const baseData = this.getOptionBaseData();
     const { image } = this.getActiveOption();
-    const dropData = {...baseData, ...{
+    const dropData = Object.assign(baseData, {
       x: percentX,
       y: percentY,
       width: this.imageSize.width || image.width,
       height: this.imageSize.height || image.height
-    }};
+    });
     this.data.push(dropData);
     this.drawImage(dropData);
 
-    this.emit('drop', dropData, event);
+    this.emit('drop', clone(dropData), event);
   }
 
   /**
@@ -160,7 +160,9 @@ class Canvas extends Base {
    * @returns {{}}
    */
   getActiveOption () {
-    return {...(this.options[this.activeIndex] || {})};
+    const activeOption = this.options[this.activeIndex] || {};
+    const { image } = activeOption;
+    return Object.assign(clone(activeOption), { image });
   }
 
   /**
