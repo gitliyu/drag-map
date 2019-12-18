@@ -190,11 +190,19 @@ class Canvas extends Base {
       const x = event.clientX - get(this.mapPosition, 'left');
       const y = event.clientY - get(this.mapPosition, 'top');
 
-      const image = this.getPointInImages(x, y);
-      if (image) {  // 点击图标
-        this.mouseMoveImage(image, event);
-      } else {  // 点击画布
-        this.mouseMoveCanvas(event);
+      const { image, type } = this.getPointTarget(x, y);
+      switch (type) {
+        case 'close': // 点击删除
+          this.removeTarget(image);
+          break;
+        case 'image': // 点击图标
+          this.mouseMoveImage(image, event);
+          break;
+        case 'map': // 点击画布
+          this.mouseMoveCanvas(event);
+          break;
+        default:
+          console.log('Error type');
       }
 
       this.clickTimeout = setTimeout(() => { this.clickTimeout = 0; }, 500);
@@ -203,7 +211,11 @@ class Canvas extends Base {
         document.onmouseup = null;
         clearTimeout(this.clickTimeout);
         if(this.clickTimeout && image){
-          this.emit('click', image);
+          if (type === 'image') {
+            this.emit('click', image);
+          } else {
+            this.emit('delete', image);
+          }
         }
       }
     };
@@ -277,23 +289,27 @@ class Canvas extends Base {
    */
   initImages (params) {
     const bgImage = get(params, 'bgImage', '');
-
     if (bgImage) {
       this.setBgImage(bgImage);
     }
+
+    const closeImage = get(params, 'closeImage', require('./image/close.png'));
+    this.setCloseImage(closeImage);
+
     this.setOptions(this.options).then(() => {
       this.draw();
     })
   }
 
   /**
-   * 验证坐标是否在图像对象上
+   * 获取坐标点所在对象
    * @param x
    * @param y
    * @returns {*}
    */
-  getPointInImages (x, y) {
+  getPointTarget (x, y) {
     let pointImage;
+    let type = 'map';
     for (let i = this.data.length - 1; i >= 0; i--) {
       const image = this.data[i];
       const { left, top } = this.transformPoint(
@@ -302,12 +318,36 @@ class Canvas extends Base {
       );
       const width = image.width * this.scale;
       const height = image.height * this.scale;
+      const halfCloseImageSize = this.closeImageSize * this.scale / 2;
+      if (x >= left + width - halfCloseImageSize && x < left + width + halfCloseImageSize
+        && y >= top - halfCloseImageSize && y < top + halfCloseImageSize ) {
+        pointImage = image;
+        type = 'close';
+        break;
+      }
       if (x >= left && x < left + width  && y >= top && y < top + height) {
         pointImage = image;
+        type = 'image';
         break;
       }
     }
-    return pointImage;
+    return {
+      type,
+      image: pointImage
+    };
+  }
+
+  /**
+   * 删除位点
+   * @param image
+   */
+  removeTarget (image) {
+    const index = this.data.findIndex(item => {
+      return item.key === image.key && item.x === image.x
+        && item.y === image.y && item.width === image.width;
+    })
+    this.data.splice(index, 1);
+    this.draw();
   }
 
   /**
@@ -318,15 +358,32 @@ class Canvas extends Base {
     const { key, x, y, width, height } = data;
     const { image } = this.options.find(item => item.key === key);
     const { left, top } = this.transformPoint(x * this.mapWidth, y * this.mapHeight);
+    const imageWidth = width || image.width;
+    const imageHeight = height || image.height;
 
+    // 绘制位点
     this.context.drawImage(
       image,
       0, 0,
       image.width, image.height,
       left, top,
-      (width || image.width) * this.scale,
-      (height || image.height) * this.scale
+      imageWidth * this.scale,
+      imageHeight * this.scale
     );
+
+    // 绘制删除按钮
+    if (this.closeImage && !this.readonly) {
+      const btnLeft = x * this.mapWidth + imageWidth - this.closeImageSize / 2;
+      const btnTop = y * this.mapHeight - this.closeImageSize / 2;
+      const btnPosition = this.transformPoint(btnLeft, btnTop);
+      this.context.drawImage(
+        this.closeImage,
+        0, 0,
+        this.closeImage.width, this.closeImage.height,
+        btnPosition.left, btnPosition.top,
+        this.closeImageSize * this.scale, this.closeImageSize * this.scale
+      );
+    }
   }
 
   /**
@@ -417,6 +474,21 @@ class Canvas extends Base {
   }
 
   /**
+   * 设置关闭按钮
+   * @param closeImage
+   * @param size
+   */
+  setCloseImage (closeImage, size = 20) {
+    const image = new Image();
+    image.src = closeImage;
+    image.onload = () => {
+      this.closeImage = image;
+      this.closeImageSize = size;
+      this.draw();
+    };
+  }
+
+  /**
    * 设置选项列表，返回Promise，等待所有图片加载完成
    * @param options
    * @returns {Promise<any>}
@@ -456,7 +528,13 @@ class Canvas extends Base {
    * @returns {*}
    */
   getData () {
-    return this.data;
+    return this.data.map(item => {
+      const result = clone(item);
+      delete result.image;
+      delete result.url;
+
+      return result;
+    });
   }
 
   /**
@@ -497,6 +575,7 @@ class Canvas extends Base {
    */
   setReadonly (readonly = false) {
     this.readonly = readonly;
+    this.draw();
   }
 
   /**
