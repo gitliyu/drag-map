@@ -85,9 +85,10 @@ dragMap.on('dragleave', data => {
 - ***drop*** 拖拽完成
 - ***dragleave*** 拖拽离开目标区域
 
-Canvas版本有更多时间
+Canvas版本有更多事件
 
 - ***click*** 点击位点图像
+- ***delete*** 点击删除按钮
 
 事件回调参数有两个，第一个参数格式如下，第二个参数为原生`drag`事件参数
 ```javascript
