@@ -30,7 +30,7 @@ export function clone (obj) {
   if (obj && typeof obj === "object") {
     for (const key in obj) {
       if (obj.hasOwnProperty(key)) {
-        if (obj[key] && typeof obj[key] === "object") {
+        if (obj[key] && typeof obj[key] === "object" && !(obj[key] instanceof Image)) {
           objClone[key] = clone(obj[key]);
         } else {
           objClone[key] = obj[key];
