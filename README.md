@@ -27,6 +27,7 @@ const dragMap = new DragMap();
 在实例化时可接受参数，不传时以下为默认值
 ```javascript
 new DragMap({
+  document: document, // 文档对象注入
   list: '#drag-list',   // 可选目标列表
   map: '#drag-map',     // 拖拽目标区域
   target: '.drag-target'  // 拖拽目标

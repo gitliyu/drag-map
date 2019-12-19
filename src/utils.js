@@ -17,7 +17,7 @@ export function get (object, path, defaultValue) {
  * @returns {number}
  */
 export function round(number, length) {
-  return +number.toFixed(length);
+  return +(+number).toFixed(length);
 }
 
 /**

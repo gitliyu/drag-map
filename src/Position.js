@@ -13,8 +13,8 @@ class Position extends Base {
    * 初始化事件对象
    */
   initElements () {
-    const list = document.querySelector(this.list);
-    const map = document.querySelector(this.map);
+    const list = this.document.querySelector(this.list);
+    const map = this.document.querySelector(this.map);
     if (!list) {
       return console.warn('Object list not found:', this.list);
     }
@@ -174,7 +174,7 @@ class Position extends Base {
    * @returns {boolean}
    */
   isMap (target) {
-    return target === document.querySelector(this.map);
+    return target === this.document.querySelector(this.map);
   }
 
   /**

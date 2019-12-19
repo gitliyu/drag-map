@@ -158,8 +158,8 @@ export default {
         const size = 50 * (Math.random() + 1);
         data.push({
           key: Math.floor(Math.random() * 5),
-          x: (Math.random()).toFixed(4),
-          y: (Math.random()).toFixed(4),
+          x: +(Math.random()).toFixed(4),
+          y: +(Math.random()).toFixed(4),
           width: size,
           height: size
         })

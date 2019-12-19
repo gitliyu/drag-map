@@ -22,7 +22,7 @@ class Canvas extends Base {
    * 初始化事件对象
    */
   initElements () {
-    const map = document.querySelector(this.map);
+    const map = this.document.querySelector(this.map);
     if (!map) {
       return console.warn('Object map not found:', this.map);
     }
@@ -30,7 +30,7 @@ class Canvas extends Base {
     this.mapWidth = map.offsetWidth;
     this.mapHeight = map.offsetHeight;
 
-    const list = document.querySelector(this.list);
+    const list = this.document.querySelector(this.list);
     if (!list) {
       return console.warn('Object list not found:', this.list);
     }
@@ -117,6 +117,9 @@ class Canvas extends Base {
    * @param event
    */
   onDrop (event) {
+    if (this.readonly) {
+      return;
+    }
     let offsetX = event.x - get(this.mapPosition, 'left') - get(this.activeTarget, 'x');
     let offsetY = event.y - get(this.mapPosition, 'top') - get(this.activeTarget, 'y');
     const { left, top } = this.transformPoint(offsetX, offsetY, 1);
@@ -170,7 +173,7 @@ class Canvas extends Base {
    * 初始化canvas
    */
   initCanvas () {
-    this.canvas = document.querySelector(this.map);
+    this.canvas = this.document.querySelector(this.map);
     this.context = this.canvas.getContext('2d');
 
     this.canvas.width =  this.mapWidth;
@@ -206,9 +209,9 @@ class Canvas extends Base {
       }
 
       this.clickTimeout = setTimeout(() => { this.clickTimeout = 0; }, 500);
-      document.onmouseup = () => {
+      this.document.onmouseup = () => {
         this.canvas.onmousemove = null;
-        document.onmouseup = null;
+        this.document.onmouseup = null;
         clearTimeout(this.clickTimeout);
         if(this.clickTimeout && image){
           if (type === 'image') {
@@ -346,7 +349,7 @@ class Canvas extends Base {
     const index = this.data.findIndex(item => {
       return item.key === image.key && item.x === image.x
         && item.y === image.y && item.width === image.width;
-    })
+    });
     this.data.splice(index, 1);
     this.draw();
   }

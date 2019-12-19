@@ -13,6 +13,7 @@ class Base {
    */
   initParams (params) {
     this.params = params || {};
+    this.document = get(params, 'document', document);
     this.list = get(params, 'list', '#drag-list');
     this.map = get(params, 'map', '#drag-map');
     this.target = get(params, 'target', '.drag-target');
