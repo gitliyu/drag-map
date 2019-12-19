@@ -38,11 +38,13 @@ new DragMap({
   ...{ baseParams },
   type: 'canvas', // 使用canvas版本时必须设置
   options: {},  // 可选区域的数据列表
-  bgImage: 'xxx.com/bg.png',  // 背景图片地址
+  bgImage: 'bg.png',  // 背景图片地址
   maxScale: 3,  // 最大放大倍数，默认为3
   minScale: 1,  // 最小缩放倍数，默认为1
   scaleStep: 0.05, // 鼠标滑轮每次缩放比例, 默认为0.05
   readonly: false,  // 只读模式
+  deleteImage: 'close.png', // 删除按钮图片地址
+  deleteImageSize: 20, // 删除按钮尺寸，默认为20px
   data: []  // 初始化的数据
 })
 ```
@@ -130,3 +132,5 @@ dragMap.setOptions(options).then(() => {
 dragMap.setImageSize(70)
 ```
 - ***clear()*** 清空数据并重置画布，保留背景图
+- ***setDeleteImage(url)*** 设置删除按钮图片
+- ***setDeleteImageSize(size)*** 设置删除按钮尺寸

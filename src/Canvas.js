@@ -293,8 +293,9 @@ class Canvas extends Base {
       this.setBgImage(bgImage);
     }
 
-    const closeImage = get(params, 'closeImage', require('./image/close.png'));
-    this.setCloseImage(closeImage);
+    const deleteImage = get(params, 'deleteImage', require('./image/close.png'));
+    this.deleteImageSize = get(params, 'deleteImageSize', 20);
+    this.setDeleteImage(deleteImage);
 
     this.setOptions(this.options).then(() => {
       this.draw();
@@ -318,9 +319,9 @@ class Canvas extends Base {
       );
       const width = image.width * this.scale;
       const height = image.height * this.scale;
-      const halfCloseImageSize = this.closeImageSize * this.scale / 2;
-      if (x >= left + width - halfCloseImageSize && x < left + width + halfCloseImageSize
-        && y >= top - halfCloseImageSize && y < top + halfCloseImageSize ) {
+      const halfDeleteImageSize = this.deleteImageSize * this.scale / 2;
+      if (x >= left + width - halfDeleteImageSize && x < left + width + halfDeleteImageSize
+        && y >= top - halfDeleteImageSize && y < top + halfDeleteImageSize ) {
         pointImage = image;
         type = 'close';
         break;
@@ -372,16 +373,16 @@ class Canvas extends Base {
     );
 
     // 绘制删除按钮
-    if (this.closeImage && !this.readonly) {
-      const btnLeft = x * this.mapWidth + imageWidth - this.closeImageSize / 2;
-      const btnTop = y * this.mapHeight - this.closeImageSize / 2;
+    if (this.deleteImage && !this.readonly) {
+      const btnLeft = x * this.mapWidth + imageWidth - this.deleteImageSize / 2;
+      const btnTop = y * this.mapHeight - this.deleteImageSize / 2;
       const btnPosition = this.transformPoint(btnLeft, btnTop);
       this.context.drawImage(
-        this.closeImage,
+        this.deleteImage,
         0, 0,
-        this.closeImage.width, this.closeImage.height,
+        this.deleteImage.width, this.deleteImage.height,
         btnPosition.left, btnPosition.top,
-        this.closeImageSize * this.scale, this.closeImageSize * this.scale
+        this.deleteImageSize * this.scale, this.deleteImageSize * this.scale
       );
     }
   }
@@ -474,18 +475,25 @@ class Canvas extends Base {
   }
 
   /**
-   * 设置关闭按钮
-   * @param closeImage
-   * @param size
+   * 设置删除按钮
+   * @param deleteImage
    */
-  setCloseImage (closeImage, size = 20) {
+  setDeleteImage (deleteImage) {
     const image = new Image();
-    image.src = closeImage;
+    image.src = deleteImage;
     image.onload = () => {
-      this.closeImage = image;
-      this.closeImageSize = size;
+      this.deleteImage = image;
       this.draw();
     };
+  }
+
+  /**
+   * 设置删除按钮尺寸
+   * @param size
+   */
+  setDeleteImageSize (size = 20) {
+    this.deleteImageSize = size;
+    this.draw();
   }
 
   /**

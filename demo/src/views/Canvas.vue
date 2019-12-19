@@ -10,8 +10,8 @@
     <canvas id="drag-map"></canvas>
 
     <div class="action-bar">
-      <h3>背景图</h3>
-      <el-select v-model="params.bgImage" @change="onChangeBg">
+      <h3>图片素材</h3>
+      <el-select v-model="params.bgImage" @change="onChangeBg" class="pb-10">
         <el-option
           v-for="item in bgOptions"
           :key="item.value"
@@ -19,6 +19,28 @@
           :value="item.value">
         </el-option>
       </el-select>
+      <el-select v-model="params.deleteImage" @change="onChangeDeleteImage">
+        <el-option
+          v-for="item in deleteImagesOptions"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value">
+        </el-option>
+      </el-select>
+
+      <h3>尺寸</h3>
+      <div>
+        <span class="pb-10">位点图片</span>
+        <el-input type="number" v-model="params.size" @change="onChangeSize">
+          <template slot="append">px</template>
+        </el-input>
+      </div>
+      <div>
+        <span>删除按钮尺寸</span>
+        <el-input type="number" v-model="params.deleteImageSize" @change="onChangeDeleteImageSize">
+          <template slot="append">px</template>
+        </el-input>
+      </div>
 
       <h3>放大缩放</h3>
       <div class="pb-10">
@@ -31,11 +53,6 @@
         <el-input-number v-model="params.scaleStep" @change="onChangeScaleStep"
                               size="small" :min="0.01" :max="0.3" :step="0.01"></el-input-number>
       </div>
-
-      <h3>位点尺寸</h3>
-      <el-input type="number" v-model="params.size" @change="onChangeSize">
-        <template slot="append">px</template>
-      </el-input>
 
       <h3>设置位点</h3>
       <el-button @click="onCreateTargets">点击随机生成</el-button>
@@ -60,8 +77,11 @@ export default {
       mapList: [],
       dragMap: null,
       bgOptions: [],
+      deleteImagesOptions: [],
       params: {
         bgImage: 0,
+        deleteImage: 0,
+        deleteImageSize: 20,
         scale: 1,
         scaleStep: 0.05,
         size: 70,
@@ -79,6 +99,7 @@ export default {
   },
   mounted () {
     this.getBgOptions();
+    this.getDeleteImageOptions();
     this.initDragMap();
   },
   methods: {
@@ -105,8 +126,22 @@ export default {
         };
       })
     },
+    getDeleteImageOptions () {
+      this.deleteImagesOptions = [0, 1, 2].map(value => {
+        return {
+          label: `删除按钮${value + 1}`,
+          value
+        };
+      })
+    },
     onChangeBg (val) {
       this.dragMap.setBgImage(require(`../assets/image/bg${val}.jpg`));
+    },
+    onChangeDeleteImage (val) {
+      this.dragMap.setDeleteImage(require(`../assets/image/close${val}.png`));
+    },
+    onChangeDeleteImageSize (val) {
+      this.dragMap.setDeleteImageSize(val);
     },
     onChangeScale (val) {
       this.dragMap.setScale(val);
@@ -187,12 +222,17 @@ export default {
     .action-bar {
       position: absolute;
       left: -25%;
-      top: 10px;
+      top: -50px;
       width: 20%;
-    }
+      h3 {
+        padding: 0;
+        margin: 0;
+        line-height: 40px;
+      }
 
-    .pb-10 {
-      padding-bottom: 10px;
+      .pb-10 {
+        padding-bottom: 10px;
+      }
     }
   }
 </style>
