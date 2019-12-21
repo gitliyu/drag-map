@@ -1,8 +1,8 @@
 <template>
   <div id="app">
     <div class="nav">
-      <router-link to="/position">定位</router-link>
       <router-link to="/canvas">Canvas</router-link>
+      <router-link to="/position">定位</router-link>
     </div>
     <router-view></router-view>
   </div>

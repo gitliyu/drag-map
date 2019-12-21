@@ -8,7 +8,7 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    redirect: '/position'
+    redirect: '/canvas'
   },
   {
     path: '/position',

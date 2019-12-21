@@ -217,6 +217,10 @@ export default {
       height: calc(100% - 110px);
       margin-top: 10px;
       border: 1px solid #666;
+      cursor: grab;
+      &:active {
+        cursor: grabbing;
+      }
     }
 
     .action-bar {
