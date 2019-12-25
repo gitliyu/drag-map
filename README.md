@@ -35,7 +35,7 @@ const dragMap = new DragMap();
 <canvas id="drag-map"></canvas>
 ```
 #### 配置项
-在实例化时可接受参数，除`type`外均为非必填项，以下为默认值
+在实例化时可接受参数，除`type`和`options`外均为非必填项，以下为默认值
 ```javascript
 new DragMap({
   document, // 文档对象注入
@@ -94,6 +94,8 @@ dragMap.on('click', data => {
 - ***dragleave(data, event)*** 拖拽离开目标区域
 - ***click(data)*** 点击位点图像
 - ***delete(data)*** 点击位点删除按钮
+- ***mouseover(data, event)*** 鼠标经过位点
+- ***mouseleave(data, event)*** 鼠标移出位点
 
 事件接受参数`event`为原生`drag`事件参数，`data`为当前位点数据格式同实力化格式一致
 

@@ -63,6 +63,7 @@
       <h3>其他</h3>
       <el-button @click="onClear">重置</el-button>
     </div>
+    <div class="tooltip" v-if="tooltip.visible" :style="tooltip.style">提示</div>
   </div>
 </template>
 
@@ -86,7 +87,8 @@ export default {
         scaleStep: 0.05,
         size: 70,
         readonly: false
-      }
+      },
+      tooltip: { visible: false, style: '' }
     };
   },
   created () {
@@ -116,7 +118,16 @@ export default {
 
       this.dragMap.on('click', data => {
         this.$message.success(`当前点击位点信息 key: ${data.key}, x: ${data.x}, y: ${data.y}`);
-      })
+      });
+
+      this.dragMap.on('mouseover', (data, event) => {
+        this.tooltip.visible = true;
+        this.tooltip.style = `left: ${event.clientX}px;top: ${event.clientY}px;`
+      });
+
+      this.dragMap.on('mouseleave', () => {
+        this.tooltip.visible = false;
+      });
     },
     getBgOptions () {
       this.bgOptions = [0, 1, 2, 3].map(value => {
@@ -237,6 +248,23 @@ export default {
       .pb-10 {
         padding-bottom: 10px;
       }
+    }
+
+    .tooltip {
+      position: fixed;
+      border-style: solid;
+      white-space: nowrap;
+      z-index: 9999999;
+      transition: left 0.4s cubic-bezier(0.23, 1, 0.32, 1) 0s, top 0.4s cubic-bezier(0.23, 1, 0.32, 1) 0s;
+      background-color: rgba(50, 50, 50, 0.7);
+      border-width: 0;
+      border-color: rgb(51, 51, 51);
+      border-radius: 4px;
+      color: rgb(255, 255, 255);
+      font-size: 14px;
+      line-height: 21px;
+      padding: 5px;
+      pointer-events: none;
     }
   }
 </style>

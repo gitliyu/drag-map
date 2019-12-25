@@ -190,6 +190,10 @@ class Canvas extends Base {
    */
   bindCanvasEvent () {
     this.canvas.onmousedown = event => {
+      if (this.mouseoverImage) {
+        this.emit('mouseleave', clone(this.mouseoverImage), event);
+        this.mouseoverImage = null;
+      }
       const x = event.clientX - get(this.mapPosition, 'left');
       const y = event.clientY - get(this.mapPosition, 'top');
 
@@ -210,7 +214,9 @@ class Canvas extends Base {
 
       this.clickTimeout = setTimeout(() => { this.clickTimeout = 0; }, 500);
       this.document.onmouseup = () => {
-        this.canvas.onmousemove = null;
+        this.canvas.onmousemove = e => {
+          this.mouseMove(e);
+        };
         this.document.onmouseup = null;
         clearTimeout(this.clickTimeout);
         if(this.clickTimeout && image){
@@ -221,6 +227,10 @@ class Canvas extends Base {
           }
         }
       }
+    };
+
+    this.canvas.onmousemove = event => {
+      this.mouseMove(event);
     };
 
     this.canvas.onmousewheel = event => {
@@ -263,6 +273,24 @@ class Canvas extends Base {
       this.canvasOffsetY = canvasOffsetY + ev.clientY - event.clientY;
       this.draw();
     };
+  }
+
+  /**
+   * canvas 鼠标移动
+   * @param event
+   */
+  mouseMove (event) {
+    const x = event.clientX - get(this.mapPosition, 'left');
+    const y = event.clientY - get(this.mapPosition, 'top');
+    const { image, type } = this.getPointTarget(x, y);
+
+    if (type === 'image' || type === 'close') { // 鼠标移入图像
+      this.mouseoverImage = image;
+      this.emit('mouseover', image, event);
+    } else if (type === 'map' && this.mouseoverImage) { // 鼠标移除
+      this.emit('mouseleave', clone(this.mouseoverImage), event);
+      this.mouseoverImage = null;
+    }
   }
 
   /**
