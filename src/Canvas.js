@@ -626,6 +626,22 @@ class Canvas extends Base {
   }
 
   /**
+   * 设置最小缩放率
+   * @param scale
+   */
+  setMinScale (scale = 1) {
+    this.minScale = scale;
+  }
+
+  /**
+   * 设置最大缩放率
+   * @param scale
+   */
+  setMaxScale (scale = 3) {
+    this.maxScale = scale;
+  }
+
+  /**
    * 清空数据并重置画布
    */
   clear () {

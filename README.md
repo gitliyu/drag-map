@@ -118,6 +118,8 @@ dragMap.setOptions(options).then(() => {
 配置类
 - ***setBgImage(url)*** 设置背景图
 - ***setScale(scale)*** 设置当前缩放倍数
+- ***setMinScale(scale)*** 设置最小缩放倍数，默认`1`
+- ***setMaxScale(scale)*** 设置最大缩放倍数，默认`3`
 - ***setScaleStep(step)*** 设置每次缩放比例，默认`0.05`
 - ***setImageSize(width, height)*** 设置位点图片大小，默认为图片本身大小,`height`不传时默认和`width`相同
 ```javascript

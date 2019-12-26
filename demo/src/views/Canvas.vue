@@ -42,11 +42,17 @@
         </el-input>
       </div>
 
-      <h3>放大缩放</h3>
+      <h3>缩放</h3>
+      <div class="scale-box pb-10">
+        <span>范围：</span>
+        <el-input type="number" v-model="params.minScale" size="small" @change="onChangeMinScale"></el-input>
+        <span>-</span>
+        <el-input type="number" v-model="params.maxScale" size="small" @change="onChangeMaxScale"></el-input>
+      </div>
       <div class="pb-10">
         <span>比率：</span>
         <el-input-number v-model="params.scale" @change="onChangeScale"
-                            size="small" :min="1" :max="3" :step="params.scaleStep"></el-input-number>
+                            size="small" :min="+params.minScale" :max="+params.maxScale" :step="params.scaleStep"></el-input-number>
       </div>
       <div>
         <span>单次速率：</span>
@@ -63,7 +69,11 @@
       <h3>其他</h3>
       <el-button @click="onClear">重置</el-button>
     </div>
-    <div class="tooltip" v-if="tooltip.visible" :style="tooltip.style">提示</div>
+    <div class="tooltip" v-if="params.readonly && tooltip.visible" :style="tooltip.style">
+      <p>key: {{ tooltip.key }}</p>
+      <p>x: {{ tooltip.x }}</p>
+      <p>y: {{ tooltip.y }}</p>
+    </div>
   </div>
 </template>
 
@@ -84,11 +94,19 @@ export default {
         deleteImage: 0,
         deleteImageSize: 20,
         scale: 1,
+        minScale: 1,
+        maxScale: 3,
         scaleStep: 0.05,
         size: 70,
         readonly: false
       },
-      tooltip: { visible: false, style: '' }
+      tooltip: {
+        visible: false,
+        style: '',
+        key: null,
+        x: null,
+        y: null
+      }
     };
   },
   created () {
@@ -121,8 +139,13 @@ export default {
       });
 
       this.dragMap.on('mouseover', (data, event) => {
-        this.tooltip.visible = true;
-        this.tooltip.style = `left: ${event.clientX}px;top: ${event.clientY}px;`
+        this.$set(this, 'tooltip', {
+          visible: true,
+          style: `left: ${event.clientX}px;top: ${event.clientY}px;`,
+          key: data.key,
+          x: data.x,
+          y: data.y
+        });
       });
 
       this.dragMap.on('mouseleave', () => {
@@ -153,6 +176,12 @@ export default {
     },
     onChangeDeleteImageSize (val) {
       this.dragMap.setDeleteImageSize(val);
+    },
+    onChangeMinScale (val) {
+      this.dragMap.setMinScale(val);
+    },
+    onChangeMaxScale (val) {
+      this.dragMap.setMaxScale(val);
     },
     onChangeScale (val) {
       this.dragMap.setScale(val);
@@ -248,6 +277,14 @@ export default {
       .pb-10 {
         padding-bottom: 10px;
       }
+
+      .scale-box {
+        display: flex;
+        justify-content: space-between;
+        .el-input {
+          width: 70px;
+        }
+      }
     }
 
     .tooltip {
@@ -263,7 +300,7 @@ export default {
       color: rgb(255, 255, 255);
       font-size: 14px;
       line-height: 21px;
-      padding: 5px;
+      padding: 5px 20px;
       pointer-events: none;
     }
   }
