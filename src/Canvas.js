@@ -72,6 +72,12 @@ class Canvas extends Base {
    */
   bindTargetEvents (targets) {
     targets.forEach((target, index) => {
+      if (get(this.options, `${index}.disabled`)) {
+        target.setAttribute('draggable', false);
+        const imgs = target.querySelectorAll('img');
+        imgs.forEach(img => img.setAttribute('draggable', false));
+        return;
+      }
       target.setAttribute('draggable', true);
       target.ondragstart = event => {
         this.activeIndex = index;
@@ -117,7 +123,7 @@ class Canvas extends Base {
    * @param event
    */
   onDrop (event) {
-    if (this.readonly) {
+    if (this.readonly || get(this.options, `${this.activeIndex}.disabled`)) {
       return;
     }
     let offsetX = event.x - get(this.mapPosition, 'left') - get(this.activeTarget, 'x');
@@ -642,6 +648,16 @@ class Canvas extends Base {
   }
 
   /**
+   * 设置选项禁用
+   * @param index
+   * @param disabled
+   */
+  setOptionDisabled (index, disabled = true) {
+    this.options[index].disabled = disabled;
+    this.initElements();
+  }
+
+  /**
    * 清空数据并重置画布
    */
   clear () {
@@ -655,6 +671,7 @@ class Canvas extends Base {
   refresh () {
     this.initElements();
     this.initCanvas();
+    this.initImages(this.params);
   }
 }
 

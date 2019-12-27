@@ -59,6 +59,7 @@ new DragMap({
 {
   key: 1, // key值必须设置，作为唯一标识符，与drag-list索引值对应
   url: 'xxx.png', // 位点图片地址
+  disabled: false, // 选项禁用
   ...options // 其他自定义数据，会在事件和记录的位点数据中一并记录
 }
 ```
@@ -128,6 +129,11 @@ dragMap.setImageSize(50, 60)
 ```
 - ***setDeleteImage(url)*** 设置删除按钮图片
 - ***setDeleteImageSize(size)*** 设置删除按钮尺寸
+- ***setOptionDisabled(index, disabled)*** 设置选项禁用
+```javascript
+dragMap.setOptionDisabled(1) // 索引为1的禁用
+dragMap.setOptionDisabled(2, false) // 取消禁用
+```
 
 
 ### 定位版本
