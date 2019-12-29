@@ -670,8 +670,6 @@ class Canvas extends Base {
    */
   refresh () {
     this.initElements();
-    this.initCanvas();
-    this.initImages(this.params);
   }
 }
 
