@@ -1,14 +1,16 @@
 <template>
   <div class="canvas-page">
+    <!--  main content  -->
     <div id="drag-list">
-      <div class="drag-target" v-for="(item, index) in selectList" :key="index">
-        <img :src="item.url">
+      <div class="drag-target" v-for="(item, index) in options" :key="index">
+        <img :src="item.url" alt="">
       </div>
       <div class="modal" v-if="params.readonly"></div>
     </div>
 
     <canvas id="drag-map"></canvas>
 
+    <!--  action bar  -->
     <div class="action-bar">
       <h3>图片素材</h3>
       <el-select v-model="params.bgImage" @change="onChangeBg" class="pb-10">
@@ -69,6 +71,8 @@
       <h3>其他</h3>
       <el-button @click="onClear">重置</el-button>
     </div>
+
+    <!--  tooltip  -->
     <div class="tooltip" v-if="params.readonly && tooltip.visible" :style="tooltip.style">
       <p>key: {{ tooltip.key }}</p>
       <p>x: {{ tooltip.x }}</p>
@@ -84,7 +88,7 @@ export default {
   components: {},
   data () {
     return {
-      selectList: [0, 1, 2, 3, 4],
+      options: [0, 1, 2, 3, 4],
       mapList: [],
       dragMap: null,
       bgOptions: [],
@@ -110,7 +114,7 @@ export default {
     };
   },
   created () {
-    this.selectList = this.selectList.map(item => {
+    this.options = this.options.map(item => {
       return {
         key: item,  // key值必须设置，作为唯一标识符
         url: require(`../assets/image/icon-house-${item}.png`)
@@ -126,7 +130,7 @@ export default {
     initDragMap () {
       this.dragMap = new DragMap({
         type: 'canvas',
-        options: this.selectList,
+        options: this.options,
         bgImage: require('../assets/image/bg0.jpg')
       });
 
