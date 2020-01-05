@@ -51,7 +51,8 @@ new DragMap({
   scaleStep: 0.05, // 鼠标滑轮每次缩放比例, 默认为0.05
   readonly: false,  // 只读模式
   deleteImage: 'close.png', // 删除按钮图片地址
-  deleteImageSize: 20 // 删除按钮尺寸，默认为20px
+  deleteImageSize: 20, // 删除按钮尺寸，默认为20px
+  labelStyle: {}  // 位点标签样式
 })
 ```
 其中`options`为拖拽位点图片数据，格式如下
@@ -59,6 +60,7 @@ new DragMap({
 {
   key: 1, // key值必须设置，作为唯一标识符，与drag-list索引值对应
   url: 'xxx.png', // 位点图片地址
+  label: 'label', // 位点标签
   disabled: false, // 选项禁用
   ...options // 其他自定义数据，会在事件和记录的位点数据中一并记录
 }
@@ -74,6 +76,16 @@ new DragMap({
   ...options // options中自定义数据
 }]
 ```
+位点标签样式`labelStyle`格式如下
+```javascript
+{
+  font: '16px bold 黑体', // 字体样式字符串
+  fillStyle: '#333',  // 字体颜色
+  margin: 15, // label间距，默认15
+  position: 'bottom'  // label位置，默认bottom top|bottom|left|right
+}
+```
+
 #### 事件
 对于拖拽各个过程的数据，都会以事件的形式发送出来，监听方式如下
 ```javascript
@@ -133,6 +145,15 @@ dragMap.setImageSize(50, 60)
 ```javascript
 dragMap.setOptionDisabled(1) // 索引为1的禁用
 dragMap.setOptionDisabled(2, false) // 取消禁用
+```
+- ***setLabelStyle(style)*** 设置label样式
+```javascript
+dragMap.setLabelStyle({
+  font: '16px bold 黑体',
+  fillStyle: '#333',
+  margin: 15,
+  position: 'bottom'
+})
 ```
 
 

@@ -11,6 +11,7 @@ class Canvas extends Base {
     this.minScale = get(params, 'minScale', 1);
     this.scaleStep = get(params, 'scaleStep', 0.05);
     this.readonly = get(params, 'readonly', false);
+    this.labelStyle = get(params, 'labelStyle', {});
 
     this.setImageSize();
     this.initElements();
@@ -189,6 +190,7 @@ class Canvas extends Base {
     this.canvasOffsetX = 0;
     this.canvasOffsetY = 0;
     this.bindCanvasEvent();
+    this.initLabelStyle();
   }
 
   /**
@@ -389,6 +391,37 @@ class Canvas extends Base {
   }
 
   /**
+   * 初始化label样式
+   */
+  initLabelStyle () {
+    if (this.labelStyle.font) {
+      this.context.font = this.labelStyle.font;
+    }
+    if (this.labelStyle.fillStyle) {
+      this.context.fillStyle = this.labelStyle.fillStyle;
+    }
+    this.labelStyle.position = this.labelStyle.position || 'bottom';
+    switch (this.labelStyle.position) {
+      case 'top':
+        this.context.textAlign = 'center';
+        this.context.textBaseline = 'bottom';
+        break;
+      case 'bottom':
+        this.context.textAlign = 'center';
+        this.context.textBaseline = 'top';
+        break;
+      case 'left':
+        this.context.textAlign = 'right';
+        this.context.textBaseline = 'middle';
+        break;
+      case 'right':
+        this.context.textAlign = 'left';
+        this.context.textBaseline = 'middle';
+        break;
+    }
+  }
+
+  /**
    * 画图
    * @param data
    */
@@ -409,6 +442,17 @@ class Canvas extends Base {
       imageHeight * this.scale
     );
 
+    // 绘制标签
+    if (data.label) {
+      this.drawLabel({
+        label: data.label,
+        x: x * this.mapWidth,
+        y: y * this.mapHeight,
+        imageWidth,
+        imageHeight
+      });
+    }
+
     // 绘制删除按钮
     if (this.deleteImage && !this.readonly) {
       const btnLeft = x * this.mapWidth + imageWidth - this.deleteImageSize / 2;
@@ -422,6 +466,36 @@ class Canvas extends Base {
         this.deleteImageSize * this.scale, this.deleteImageSize * this.scale
       );
     }
+  }
+
+  /**
+   * 绘制位点label
+   * @param data
+   */
+  drawLabel (data) {
+    const { label, x, y, imageWidth, imageHeight } = data;
+    const margin = this.labelStyle.margin || 15;
+    let lebelLeft = 0, lebelTop = 0;
+    switch (this.labelStyle.position) {
+      case 'top':
+        lebelLeft = x + imageWidth / 2;
+        lebelTop = y - margin;
+        break;
+      case 'bottom':
+        lebelLeft = x + imageWidth / 2;
+        lebelTop = y + imageHeight + margin;
+        break;
+      case 'left':
+        lebelLeft = x - margin;
+        lebelTop = y + imageHeight / 2;
+        break;
+      case 'right':
+        lebelLeft = x + imageWidth + margin;
+        lebelTop = y + imageHeight / 2;
+        break;
+    }
+    const { left, top } = this.transformPoint(lebelLeft, lebelTop);
+    this.context.fillText(label, left, top);
   }
 
   /**
@@ -655,6 +729,16 @@ class Canvas extends Base {
   setOptionDisabled (index, disabled = true) {
     this.options[index].disabled = disabled;
     this.initElements();
+  }
+
+  /**
+   * 设置位点label样式
+   * @param style
+   */
+  setLabelStyle (style = {}) {
+    this.labelStyle = style;
+    this.initLabelStyle();
+    this.draw();
   }
 
   /**

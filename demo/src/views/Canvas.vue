@@ -68,6 +68,52 @@
       <h3>只读模式</h3>
       <el-switch v-model="params.readonly" @change="onChangeReadonly"></el-switch>
 
+      <h3>位点标签</h3>
+      <div class="pb-10">
+        <span>位置 </span>
+        <el-select v-model="labelStyle.position" @change="onChangeLabelStyle">
+          <el-option
+            v-for="item in labelPositions"
+            :key="item"
+            :label="item"
+            :value="item">
+          </el-option>
+        </el-select>
+      </div>
+      <div class="pb-10">
+        <span>字体 </span>
+        <el-select v-model="labelStyle.font" @change="onChangeLabelStyle">
+          <el-option
+            v-for="item in labelFonts"
+            :key="item"
+            :label="item"
+            :value="item">
+          </el-option>
+        </el-select>
+      </div>
+      <div class="pb-10">
+        <span>颜色 </span>
+        <el-select v-model="labelStyle.fillStyle" @change="onChangeLabelStyle">
+          <el-option
+            v-for="item in labelColors"
+            :key="item"
+            :label="item"
+            :value="item">
+          </el-option>
+        </el-select>
+      </div>
+      <div>
+        <span>间隔 </span>
+        <el-select v-model="labelStyle.margin" @change="onChangeLabelStyle">
+          <el-option
+            v-for="item in labelMargins"
+            :key="item"
+            :label="item"
+            :value="item">
+          </el-option>
+        </el-select>
+      </div>
+
       <h3>其他</h3>
       <el-button @click="onClear">重置</el-button>
     </div>
@@ -93,6 +139,10 @@ export default {
       dragMap: null,
       bgOptions: [],
       deleteImagesOptions: [],
+      labelPositions: ['top', 'bottom', 'left', 'right'],
+      labelColors: ['#333', '#808080', 'red', 'blue'],
+      labelFonts: [ '16px bold 黑体', '20px normal 宋体', '12px bold 黑体'],
+      labelMargins: [10, 15, 20],
       params: {
         bgImage: 0,
         deleteImage: 0,
@@ -103,6 +153,12 @@ export default {
         scaleStep: 0.05,
         size: 70,
         readonly: false
+      },
+      labelStyle: {
+        font: '16px bold 黑体',
+        fillStyle: '#333',
+        margin: 15,
+        position: 'bottom'
       },
       tooltip: {
         visible: false,
@@ -117,6 +173,7 @@ export default {
     this.options = this.options.map(item => {
       return {
         key: item,  // key值必须设置，作为唯一标识符
+        label: `位点${item}`,
         url: require(`../assets/image/icon-house-${item}.png`)
       };
     });
@@ -131,7 +188,8 @@ export default {
       this.dragMap = new DragMap({
         type: 'canvas',
         options: this.options,
-        bgImage: require('../assets/image/bg0.jpg')
+        bgImage: require('../assets/image/bg0.jpg'),
+        labelStyle: this.labelStyle
       });
 
       this.dragMap.on('drop', data => {
@@ -213,6 +271,9 @@ export default {
     onChangeReadonly (val) {
       this.dragMap.setReadonly(val);
     },
+    onChangeLabelStyle () {
+      this.dragMap.setLabelStyle(this.labelStyle)
+    },
     onClear () {
       this.dragMap.clear();
       this.$message.success('已重置所有位点数据')
@@ -270,7 +331,7 @@ export default {
     .action-bar {
       position: absolute;
       left: -25%;
-      top: -50px;
+      top: -100px;
       width: 20%;
       h3 {
         padding: 0;
