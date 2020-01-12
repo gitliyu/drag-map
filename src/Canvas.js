@@ -245,6 +245,10 @@ class Canvas extends Base {
       this.mouseWheel(event);
       event.preventDefault();
     };
+
+    this.canvas.onselectstart = event => {
+      event.preventDefault();
+    };
   }
 
   /**
