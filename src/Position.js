@@ -1,5 +1,5 @@
 import Base from './Base';
-import { get, round } from './utils'
+import { get, round, isMobile } from './utils'
 
 class Position extends Base {
 
@@ -33,7 +33,12 @@ class Position extends Base {
 
     this.targets = [...listTargets, ...mapTargets];
     this.getMapPosition(map);
-    this.bindEvents(map, listTargets, mapTargets);
+
+    if (isMobile()) {
+      this.bindMobileEvents(listTargets, mapTargets);
+    } else {
+      this.bindEvents(map, listTargets, mapTargets)
+    }
   }
 
   /**
@@ -61,6 +66,16 @@ class Position extends Base {
   }
 
   /**
+   * 绑定移动端事件
+   * @param listTargets 列表中的拖拽对象
+   * @param mapTargets  目标区域中的拖拽对象
+   */
+  bindMobileEvents (listTargets, mapTargets) {
+    this.bindMobileTargetEvents(listTargets, 'add');
+    this.bindMobileTargetEvents(mapTargets, 'edit');
+  }
+
+  /**
    * 对拖拽对象绑定事件
    * @param targets
    * @param action 'add'|'edit'
@@ -71,16 +86,34 @@ class Position extends Base {
       target.ondragstart = event => {
         this.action = action;
         this.activeIndex = index;
-        const attributes = {
+        this.activeTarget = {
           targetOffsetX: event.offsetX,
           targetOffsetY: event.offsetY,
         };
-
-        Object.keys(attributes).forEach(key => {
-          event.dataTransfer.setData(key, attributes[key]);
-        });
         this.onDragStart();
       };
+    });
+  }
+
+  /**
+   * 移动端对拖拽对象绑定事件
+   * @param targets
+   * @param action
+   */
+  bindMobileTargetEvents (targets, action = 'add') {
+    targets.forEach((item, index) => {
+      item.ontouchstart = event => {
+        this.onTouchStart(event, item, index, action);
+        event.preventDefault();
+      };
+      item.ontouchmove = event => {
+        this.onTouchMove(event, item, action);
+        event.preventDefault();
+      };
+      item.ontouchend = event => {
+        this.onTouchEnd(event, item, action);
+        event.preventDefault();
+      }
     });
   }
 
@@ -140,19 +173,87 @@ class Position extends Base {
   }
 
   /**
+   * @param event
+   * @param item
+   * @param index
+   * @param action
+   */
+  onTouchStart (event, item, index, action = 'add') {
+    const position = this.getPosition(item);
+    const x = get(event, 'targetTouches.0.clientX');
+    const y = get(event, 'targetTouches.0.clientY');
+    this.action = action;
+    this.activeIndex = index;
+    this.activeTarget = {
+      x, y,
+      left: position.left,
+      top: position.top,
+      targetOffsetX: x - position.left,
+      targetOffsetY: y - position.top,
+    };
+
+    if (action === 'add') {
+      const target = item.cloneNode(true);
+      this.activeTargetId = Date.now();
+      target.id = this.activeTargetId;
+      target.style.cssText = `position: fixed; left: ${position.left}px; top: ${position.top}px;`;
+      this.document.querySelector(this.list).appendChild(target)
+    }
+  }
+
+  /**
+   * @param event
+   * @param item
+   * @param action
+   */
+  onTouchMove (event, item, action = 'add') {
+    const target = action === 'add' ? document.getElementById(this.activeTargetId) : item;
+    const x = get(event, 'targetTouches.0.clientX');
+    const y = get(event, 'targetTouches.0.clientY');
+    let left = this.activeTarget.left + x - this.activeTarget.x;
+    let top = this.activeTarget.top + y - this.activeTarget.y;
+    if (action === 'edit') {
+      left -= this.mapPosition.left;
+      top -= this.mapPosition.top;
+    }
+
+    target.style.left = `${left}px`;
+    target.style.top = `${top}px`;
+  }
+
+  /**
+   * @param event
+   * @param item
+   * @param action
+   */
+  onTouchEnd (event, item, action = 'add') {
+    if (action === 'add') {
+      const target = document.getElementById(this.activeTargetId);
+      this.document.querySelector(this.list).removeChild(target);
+    }
+
+    const x = get(event, 'changedTouches.0.clientX');
+    const y = get(event, 'changedTouches.0.clientY');
+    if (this.inMap(x, y)) {
+      const dragData = this.getDragData({ x, y });
+      this.emit('drop', dragData, event);
+    } else {
+      const left = this.activeTarget.left - this.mapPosition.left;
+      const top = this.activeTarget.top - this.mapPosition.top;
+
+      item.style.left = `${left}px`;
+      item.style.top = `${top}px`;
+    }
+  }
+
+  /**
    * 获取拖拽数据
    * @param event
    * @returns {{offsetX: number, percentY: *, percentStyle: string, offsetY: number, percentX: *, action: string, index: number, style: string}}
    */
   getDragData (event) {
-    const attributes = {};
-    const fields = ['targetOffsetX', 'targetOffsetY'];
-    fields.forEach(item => {
-      attributes[item] = event.dataTransfer.getData(item);
-    });
-
-    let offsetX = event.x - get(this.mapPosition, 'left') - get(attributes, 'targetOffsetX');
-    let offsetY = event.y - get(this.mapPosition, 'top') - get(attributes, 'targetOffsetY');
+    let offsetX = event.x - get(this.mapPosition, 'left') - get(this.activeTarget, 'targetOffsetX');
+    let offsetY = event.y - get(this.mapPosition, 'top') - get(this.activeTarget, 'targetOffsetY');
     const percentX = round(offsetX / this.mapWidth * 100, 2);
     const percentY = round(offsetY / this.mapHeight * 100, 2);
 
@@ -184,6 +285,17 @@ class Position extends Base {
    */
   isTarget (target) {
     return this.targets.includes(target);
+  }
+
+  /**
+   * 判断坐标点是否在地图上
+   * @param x
+   * @param y
+   * @returns {boolean}
+   */
+  inMap (x, y) {
+    return this.mapPosition.left < x && this.mapPosition.left + this.mapWidth > x
+      && this.mapPosition.top < y && this.mapPosition.top + this.mapHeight > y;
   }
 
   /**

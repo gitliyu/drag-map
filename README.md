@@ -185,6 +185,8 @@ new DragMap({
 - ***drop(data, event)*** 拖拽完成
 - ***dragleave(data, event)*** 拖拽离开目标区域
 
+> 移动端只支持drop事件
+
 相比于`canvas`版本，`data`数据格式有所不同
 ```javascript
 {
