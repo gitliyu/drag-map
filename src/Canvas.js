@@ -687,8 +687,8 @@ class Canvas extends Base {
    */
   setImageSize (width = 0, height = 0) {
     this.imageSize = {
-      width,
-      height: height || width
+      width: +width,
+      height: +height || +width
     }
   }
 
