@@ -360,8 +360,7 @@ class Canvas extends Base {
         image.x * this.mapWidth,
         image.y * this.mapHeight
       );
-      const width = image.width * this.scale;
-      const height = image.height * this.scale;
+      let { width, height } = this.getImageExactSize(image);
       const halfDeleteImageSize = this.deleteImageSize * this.scale / 2;
       if (x >= left + width - halfDeleteImageSize && x < left + width + halfDeleteImageSize
         && y >= top - halfDeleteImageSize && y < top + halfDeleteImageSize ) {
@@ -378,6 +377,29 @@ class Canvas extends Base {
     return {
       type,
       image: pointImage
+    };
+  }
+
+  /**
+   * 获取位点精确尺寸
+   * @param data
+   * @param isScale boolean true 带缩放 false 不带
+   * @returns {{width: *, height: *}}
+   */
+  getImageExactSize(data, isScale = true) {
+    let { width, height, key } = data;
+    if (!width) {
+      const { image } = this.options.find(item => item.key === key);
+      width = this.imageSize.width || image.width;
+      height = this.imageSize.height || image.height;
+    }
+    if (isScale) {
+      width = width * this.scale;
+      height = height * this.scale;
+    }
+    return {
+      width,
+      height: height || width
     };
   }
 
@@ -430,11 +452,10 @@ class Canvas extends Base {
    * @param data
    */
   drawImage (data) {
-    const { key, x, y, width, height } = data;
+    const { key, x, y } = data;
     const { image } = this.options.find(item => item.key === key);
     const { left, top } = this.transformPoint(x * this.mapWidth, y * this.mapHeight);
-    const imageWidth = width || image.width;
-    const imageHeight = height || image.height;
+    const { width, height } = this.getImageExactSize(data, false);
 
     // 绘制位点
     this.context.drawImage(
@@ -442,8 +463,8 @@ class Canvas extends Base {
       0, 0,
       image.width, image.height,
       left, top,
-      imageWidth * this.scale,
-      imageHeight * this.scale
+      width * this.scale,
+      height * this.scale
     );
 
     // 绘制标签
@@ -452,14 +473,14 @@ class Canvas extends Base {
         label: data.label,
         x: x * this.mapWidth,
         y: y * this.mapHeight,
-        imageWidth,
-        imageHeight
+        width,
+        height
       });
     }
 
     // 绘制删除按钮
     if (this.deleteImage && !this.readonly) {
-      const btnLeft = x * this.mapWidth + imageWidth - this.deleteImageSize / 2;
+      const btnLeft = x * this.mapWidth + width - this.deleteImageSize / 2;
       const btnTop = y * this.mapHeight - this.deleteImageSize / 2;
       const btnPosition = this.transformPoint(btnLeft, btnTop);
       this.context.drawImage(
@@ -479,26 +500,26 @@ class Canvas extends Base {
   drawLabel (data) {
     const { label, x, y, imageWidth, imageHeight } = data;
     const margin = this.labelStyle.margin || 15;
-    let lebelLeft = 0, lebelTop = 0;
+    let labelLeft = 0, labelTop = 0;
     switch (this.labelStyle.position) {
       case 'top':
-        lebelLeft = x + imageWidth / 2;
-        lebelTop = y - margin;
+        labelLeft = x + imageWidth / 2;
+        labelTop = y - margin;
         break;
       case 'bottom':
-        lebelLeft = x + imageWidth / 2;
-        lebelTop = y + imageHeight + margin;
+        labelLeft = x + imageWidth / 2;
+        labelTop = y + imageHeight + margin;
         break;
       case 'left':
-        lebelLeft = x - margin;
-        lebelTop = y + imageHeight / 2;
+        labelLeft = x - margin;
+        labelTop = y + imageHeight / 2;
         break;
       case 'right':
-        lebelLeft = x + imageWidth + margin;
-        lebelTop = y + imageHeight / 2;
+        labelLeft = x + imageWidth + margin;
+        labelTop = y + imageHeight / 2;
         break;
     }
-    const { left, top } = this.transformPoint(lebelLeft, lebelTop);
+    const { left, top } = this.transformPoint(labelLeft, labelTop);
     this.context.fillText(label, left, top);
   }
 
