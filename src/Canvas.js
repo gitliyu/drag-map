@@ -408,6 +408,9 @@ class Canvas extends Base {
    * @param image
    */
   removeTarget (image) {
+    if (this.readonly) {
+      return;
+    }
     const index = this.data.findIndex(item => {
       return item.key === image.key && item.x === image.x
         && item.y === image.y && item.width === image.width;
