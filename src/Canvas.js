@@ -781,7 +781,10 @@ class Canvas extends Base {
    * 重新获取目标元素并绑定事件
    */
   refresh () {
+    this.setImageSize();
     this.initElements();
+    this.initCanvas();
+    this.initImages(this.params);
   }
 }
 
