@@ -229,7 +229,7 @@ class Canvas extends Base {
         clearTimeout(this.clickTimeout);
         if(this.clickTimeout && image){
           if (type === 'image') {
-            this.emit('click', image);
+            this.emit('click', image, event);
           } else {
             this.emit('delete', image);
           }

@@ -105,12 +105,12 @@ dragMap.on('click', data => {
 - ***dragover(data, event)*** 在目标区域中拖拽
 - ***drop(data, event)*** 拖拽完成
 - ***dragleave(data, event)*** 拖拽离开目标区域
-- ***click(data)*** 点击位点图像
+- ***click(data, event)*** 点击位点图像
 - ***delete(data)*** 点击位点删除按钮
 - ***mouseover(data, event)*** 鼠标经过位点
 - ***mouseleave(data, event)*** 鼠标移出位点
 
-事件接受参数`event`为原生`drag`事件参数，`data`为当前位点数据格式同实力化格式一致
+事件接受参数`event`为原生事件参数，`data`为当前位点数据格式同实力化格式一致
 
 #### 方法
 操作类
