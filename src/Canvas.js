@@ -127,19 +127,21 @@ class Canvas extends Base {
     if (this.readonly || get(this.options, `${this.activeIndex}.disabled`)) {
       return;
     }
-    let offsetX = event.x - get(this.mapPosition, 'left') - get(this.activeTarget, 'x');
-    let offsetY = event.y - get(this.mapPosition, 'top') - get(this.activeTarget, 'y');
+    const { image } = this.getActiveOption();
+    const width = this.imageSize.width || image.width;
+    const height = this.imageSize.height || image.height;
+    let offsetX = event.x - get(this.mapPosition, 'left') - (get(this.activeTarget, 'x') / get(this.activeTarget, 'width') * width);
+    let offsetY = event.y - get(this.mapPosition, 'top') - (get(this.activeTarget, 'y') / get(this.activeTarget, 'height') * height);
     const { left, top } = this.transformPoint(offsetX, offsetY, 1);
     const percentX = round(left / this.mapWidth, 4);
     const percentY = round(top / this.mapHeight, 4);
 
     const baseData = this.getOptionBaseData();
-    const { image } = this.getActiveOption();
     const dropData = Object.assign(baseData, {
       x: percentX,
       y: percentY,
-      width: this.imageSize.width || image.width,
-      height: this.imageSize.height || image.height
+      width,
+      height
     });
     this.data.push(dropData);
     this.drawImage(dropData);
