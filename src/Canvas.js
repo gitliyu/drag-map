@@ -6,13 +6,13 @@ class Canvas extends Base {
   constructor (params = {}) {
     super(params);
     this.options = get(params, 'options', []);
-    this.data = get(params, 'data', []);
     this.maxScale = get(params, 'maxScale', 3);
     this.minScale = get(params, 'minScale', 1);
     this.scaleStep = get(params, 'scaleStep', 0.05);
     this.readonly = get(params, 'readonly', false);
     this.labelStyle = get(params, 'labelStyle', {});
 
+    this.setData(get(params, 'data', []), false);
     this.setImageSize();
     this.initElements();
     this.initCanvas();
@@ -666,10 +666,21 @@ class Canvas extends Base {
   /**
    * 设置画布位点数据
    * @param data
+   * @param redraw boolean 是否重绘
    */
-  setData (data) {
-    this.data = data;
-    this.draw();
+  setData (data, redraw = true) {
+    const fields = ['x', 'y', 'width', 'height'];
+    this.data = data.map(item => {
+      fields.forEach(key => {
+        if (item.hasOwnProperty(key)) {
+          item[key] = +item[key];
+        }
+      })
+      return item
+    });
+    if (redraw) {
+      this.draw();
+    }
   }
 
   /**
