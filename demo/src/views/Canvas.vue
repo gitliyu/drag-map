@@ -193,7 +193,7 @@ export default {
       });
 
       this.dragMap.on('drop', data => {
-        this.$message.success(`成功添加位点信息 key: ${data.key}, x: ${data.x}, y: ${data.y}, width: ${data.width}, height: ${data.height}`)
+        this.$message.success(`成功设置位点信息 key: ${data.key}, x: ${data.x}, y: ${data.y}, width: ${data.width}, height: ${data.height}`)
       });
 
       this.dragMap.on('click', data => {

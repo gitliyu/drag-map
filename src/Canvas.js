@@ -229,11 +229,15 @@ class Canvas extends Base {
         };
         this.document.onmouseup = null;
         clearTimeout(this.clickTimeout);
-        if(this.clickTimeout && image){
-          if (type === 'image') {
-            this.emit('click', image, event);
+        if (image) {
+          if(this.clickTimeout){
+            if (type === 'image') {
+              this.emit('click', image, event);
+            } else {
+              this.emit('delete', image);
+            }
           } else {
-            this.emit('delete', image);
+            this.emit('drop', image, event);
           }
         }
       }
@@ -269,6 +273,7 @@ class Canvas extends Base {
       this.clickTimeout = 0;
       image.x = round(imageX + (ev.clientX - event.clientX) / this.mapWidth / this.scale, 4);
       image.y = round(imageY + (ev.clientY - event.clientY) / this.mapHeight / this.scale, 4);
+      this.emit('dragover', image, event);
       this.draw();
     };
   }
