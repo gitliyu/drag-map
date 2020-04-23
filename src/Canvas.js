@@ -30,6 +30,7 @@ class Canvas extends Base {
 
     this.mapWidth = map.offsetWidth;
     this.mapHeight = map.offsetHeight;
+    this.getMapPosition(map);
 
     const list = this.document.querySelector(this.list);
     if (!list) {
@@ -41,7 +42,6 @@ class Canvas extends Base {
       return console.warn('Object target not found:', this.target);
     }
 
-    this.getMapPosition(map);
     this.bindEvents(map, targets);
   }
 
