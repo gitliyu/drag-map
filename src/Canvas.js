@@ -462,10 +462,18 @@ class Canvas extends Base {
    * @param data
    */
   drawImage (data) {
-    const { key, x, y } = data;
+    let { key, x, y } = data;
     const { image } = this.options.find(item => item.key === key);
-    const { left, top } = this.transformPoint(x * this.mapWidth, y * this.mapHeight);
     const { width, height } = this.getImageExactSize(data, false);
+    // 防止超出画布范围
+    const maxX = round(1 - image.width / this.mapWidth, 2);
+    const maxY = round(1 - image.height / this.mapHeight, 2);
+    if (x < 0) x = 0;
+    if (y < 0) y = 0;
+    if (x > maxX) x = maxX;
+    if (y > maxY) y = maxY;
+    const { left, top } = this.transformPoint(x * this.mapWidth, y * this.mapHeight);
+
 
     // 绘制位点
     this.context.drawImage(
@@ -501,6 +509,11 @@ class Canvas extends Base {
         this.deleteImageSize * this.scale, this.deleteImageSize * this.scale
       );
     }
+  }
+
+
+  formatPointData(data) {
+
   }
 
   /**

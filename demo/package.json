@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "core-js": "^3.3.2",
-    "drag-map": "^2.2.12",
+    "drag-map": "^2.2.13",
     "element-ui": "^2.13.0",
     "vue": "^2.6.10",
     "vue-class-component": "^7.0.2",
