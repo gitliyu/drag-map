@@ -15,6 +15,7 @@ class Canvas extends Base {
     this.setData(get(params, 'data', []), false);
     this.setImageSize();
     this.initElements();
+    this.bindListenEvents();
     this.initCanvas();
     this.initImages(params);
   }
@@ -65,6 +66,32 @@ class Canvas extends Base {
     map.ondrop = event => {
       this.onDrop(event);
     };
+  }
+
+  bindListenEvents() {
+    const map = this.document.querySelector(this.map);
+    if (!map) {
+      return console.warn('Object map not found:', this.map);
+    }
+
+    // canvas宽高监听
+    let MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver
+    this.observer = new MutationObserver(() => {
+      let width = getComputedStyle(map).getPropertyValue('width')
+      let height = getComputedStyle(map).getPropertyValue('height')
+      if (width === get(this.recordOldValue, 'width', 0) && height === get(this.recordOldValue, 'height', 0)) return
+      this.recordOldValue = {
+        width,
+        height
+      };
+      this.refresh();
+    });
+    this.observer.observe(map, { attributes: true, attributeFilter: ['style'], attributeOldValue: true })
+
+    // 页面滚动监听
+    window.onscroll = () => {
+      this.refresh(false);
+    }
   }
 
   /**
@@ -595,17 +622,25 @@ class Canvas extends Base {
    * 重置画布
    */
   clearMap () {
+    // 使用缓存canvas替换，减少闪烁
+    const cacheCanvas = document.createElement('canvas');
+    const cacheContext = cacheCanvas.getContext('2d');
+    cacheCanvas.width = this.mapWidth;
+    cacheCanvas.height = this.mapHeight;
+
+    this.drawBgImage(cacheContext);
+
     this.context.clearRect(0, 0, this.mapWidth, this.mapHeight);
-    this.drawBgImage();
+    this.context.drawImage(cacheCanvas, 0, 0);
   }
 
   /**
    * 绘制背景图
    */
-  drawBgImage () {
+  drawBgImage (context) {
     const { left, top } = this.transformPoint(0, 0);
 
-    this.context.drawImage(
+    (context || this.context).drawImage(
       this.bgImage,
       0, 0,
       this.bgImage.width, this.bgImage.height,
@@ -804,12 +839,20 @@ class Canvas extends Base {
 
   /**
    * 重新获取目标元素并绑定事件
+   * @param refeshAll true 全部刷新，包含重绘 false 只初始化elements
    */
-  refresh () {
-    this.setImageSize();
-    this.initElements();
-    this.initCanvas();
-    this.initImages(this.params);
+  refresh (refeshAll = true) {
+    if (this.refreshTimeout) {
+      clearTimeout(this.refreshTimeout)
+    }
+    this.refreshTimeout = setTimeout(() => {
+      this.setImageSize();
+      this.initElements();
+      if (refeshAll) {
+        this.initCanvas();
+        this.initImages(this.params);
+      }
+    }, 300)
   }
 }
 
