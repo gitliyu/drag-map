@@ -839,16 +839,16 @@ class Canvas extends Base {
 
   /**
    * 重新获取目标元素并绑定事件
-   * @param refeshAll true 全部刷新，包含重绘 false 只初始化elements
+   * @param refreshAll true 全部刷新，包含重绘 false 只初始化elements
    */
-  refresh (refeshAll = true) {
+  refresh (refreshAll = true) {
     if (this.refreshTimeout) {
       clearTimeout(this.refreshTimeout)
     }
     this.refreshTimeout = setTimeout(() => {
       this.setImageSize();
       this.initElements();
-      if (refeshAll) {
+      if (refreshAll) {
         this.initCanvas();
         this.initImages(this.params);
       }
