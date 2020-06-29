@@ -623,7 +623,7 @@ class Canvas extends Base {
    */
   clearMap () {
     // 使用缓存canvas替换，减少闪烁
-    const cacheCanvas = document.createElement('canvas');
+    const cacheCanvas = this.document.createElement('canvas');
     const cacheContext = cacheCanvas.getContext('2d');
     cacheCanvas.width = this.mapWidth;
     cacheCanvas.height = this.mapHeight;
@@ -638,6 +638,9 @@ class Canvas extends Base {
    * 绘制背景图
    */
   drawBgImage (context) {
+    if (!this.bgImage) {
+      return;
+    }
     const { left, top } = this.transformPoint(0, 0);
 
     (context || this.context).drawImage(

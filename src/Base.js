@@ -58,7 +58,7 @@ class Base {
   getMapPosition (map) {
     this.mapPosition = this.getPosition(map);
 
-    document.onscroll = () => {
+    this.document.onscroll = () => {
       this.mapPosition = this.getPosition(map);
     }
   }
