@@ -622,28 +622,20 @@ class Canvas extends Base {
    * 重置画布
    */
   clearMap () {
-    // 使用缓存canvas替换，减少闪烁
-    const cacheCanvas = this.document.createElement('canvas');
-    const cacheContext = cacheCanvas.getContext('2d');
-    cacheCanvas.width = this.mapWidth;
-    cacheCanvas.height = this.mapHeight;
-
-    this.drawBgImage(cacheContext);
-
     this.context.clearRect(0, 0, this.mapWidth, this.mapHeight);
-    this.context.drawImage(cacheCanvas, 0, 0);
+    this.drawBgImage();
   }
 
   /**
    * 绘制背景图
    */
-  drawBgImage (context) {
+  drawBgImage () {
     if (!this.bgImage) {
       return;
     }
     const { left, top } = this.transformPoint(0, 0);
 
-    (context || this.context).drawImage(
+    this.context.drawImage(
       this.bgImage,
       0, 0,
       this.bgImage.width, this.bgImage.height,

@@ -1,6 +1,6 @@
 {
   "name": "drag-map",
-  "version": "2.3.2",
+  "version": "2.3.3",
   "description": "drag helper",
   "main": "index.js",
   "private": false,
