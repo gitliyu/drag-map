@@ -370,8 +370,10 @@ class Canvas extends Base {
       this.setBgImage(bgImage);
     }
 
-    const deleteImage = get(params, 'deleteImage', require('./image/close.png'));
+    const defaultCloseImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAEPUlEQVR4Xu2bW8gPaRzHP5IcciG0K6UkkU1LVrlAKeKWNsre0CrZXXJIRA7xipRETpsQN4TkekW54EKhXYlW26bcIDYXcsjN9tVM5p1m5jn+/+/8zX9qLt7m+Z0+78zzfw7fpx/tuSYBI4ERBbcyeJ27XyV/P251ev1aFECFqujvgR+AwZ5x3gP3gAeAYAhU1CsmgKHAgqTw76Jm+cXZowTEH8DbGDFiAVDhukfFSMrCx3NAEHQHXaEAZiaFjw/Kwt/4nwTCbV8XvgAmAIuAKb6BI9v9BVwFnrj69QEwH1gKDHQN1uL2H4ELwDWXOK4AVgJzXAL0QdubwEnbuC4A9gJjbR33cbunwFabHGwBnLdxVsM2P5lysgGwEZhmclTT5/eBA1W5mQDot31ZTYuzTetc1XihCsB0YINtlJq3OwjcLcqxDMC4pBMZUvPCbNN7B6gT/zdvUAZgc40GObZFmtppsLTfBoCGt7+ZvHXo82NAr2Fz0RuwG+irsX2ruWrusCMbJA/ga+j1TRB7/SpkAWg+r/9+6JT2BTAAGG7KxPH5f8An4FtHu3xzTaX1FnxeT8gC+BHQHXL1JAsW8jEDWBviLGN7GLiT/K2Vpu2Bfq8AunsB2AlMDHCs5ao1OfsYELLFp+6PJGuLvun+DezKAvgGOOTrLbHTK7q6wEcIhKLiFeJohE9sHfAy/QTmAT8HApB5WcI+EGL6KirtDHA9BaAhr4a+Ma4YicfwYapFQ+ODKQDRGGSycHgeUkCIrUOKfNBbLwAxetWiwD6F+Ni4FJ1v2yMAs4FfQrxU2LoU5NI2VronBGAhsCSWxwI/NoXZtGlFipcEYAUwtxXeMz6rClSzdJCTTcPnl8O1jBsCsAmY6mrp0b4MQpGrdhSvuH8KgObIYzwK8jGxgdCu4pX/MwE4BbRz5acKQjuLF4B3XQDdT6DbCXZ/Bps8ELrY9KHw8e5kKBnNnA5QcsWaCaZ+2jUvkAJtRboe8Cswy2do5zn5MYVqB4RbwOdPQJeKF4TQK2biMX0V1XUcuJUCkLBRK60h15sSiCHD2zII2u0N3b/QCvbr7L7ANiBE4KgNkfU5giHFV/UJoblKcLlHATpxYyQG1MKNkVhbY9og6Q8MC/meCmz1iWmff3Sg39KtMflt9OZoCrbR2+OC0HiBhCA0WiIjABJDb6mhHti3/5OOeF+RmLpKJidR9HLfiDWzO1smojYJJTtBHG1iXSmeNgGQ804SSedhGEXTNgDktNFi6ZRqJ4mmjSLptCjbNyBt3wkjxUpxdP4bcQUgeylJVrV5N8nU0em55gm/l4miyxz4AJAviakX10hPLB3w5SIxtImcL4DUb2OPzeXBNvbgZBZEenR2cqDgsuqtlcDxYXICpFZHZ/NJS3ipg9O6BcRXgSYllwrW4WndL03ftOvz0D7ANp7r8XmtKukIfcuPz/8P+mn1p1qEWG0AAAAASUVORK5CYII=';
+    const deleteImage = get(params, 'deleteImage', defaultCloseImage);
     this.deleteImageSize = get(params, 'deleteImageSize', 20);
+
     this.setDeleteImage(deleteImage);
 
     this.setOptions(this.options).then(() => {
