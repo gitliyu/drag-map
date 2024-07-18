@@ -43,7 +43,7 @@ new DragMap({
   list: '#drag-list',   // 可选目标列表
   map: '#drag-map',     // 拖拽目标区域
   target: '.drag-target',  // 拖拽目标
-  options: {},  // 可选区域的数据列表
+  options: [],  // 可选区域的数据列表
   data: [],  // 初始化的数据
   bgImage: 'bg.png',  // 背景图片地址
   maxScale: 3,  // 最大放大倍数，默认为3
@@ -73,6 +73,7 @@ new DragMap({
   y: 0.3, // 纵坐标
   width: 70,  // 位点图像宽度
   height: 70,  // 位点图像高度
+  readonly: false, // 将单个位点设置为只读
   ...options // options中自定义数据
 }]
 ```

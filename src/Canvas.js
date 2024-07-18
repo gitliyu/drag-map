@@ -444,7 +444,7 @@ class Canvas extends Base {
    * @param image
    */
   removeTarget (image) {
-    if (this.readonly) {
+    if (this.readonly || image.readonly) {
       return;
     }
     const index = this.data.findIndex(item => {
@@ -491,7 +491,7 @@ class Canvas extends Base {
    * @param data
    */
   drawImage (data) {
-    let { key, x, y } = data;
+    let { key, x, y, readonly } = data;
     const { image } = this.options.find(item => item.key === key);
     const { width, height } = this.getImageExactSize(data, false);
     // 防止超出画布范围
@@ -525,7 +525,7 @@ class Canvas extends Base {
     }
 
     // 绘制删除按钮
-    if (this.deleteImage && !this.readonly) {
+    if (this.deleteImage && !this.readonly && !readonly) {
       const btnLeft = x * this.mapWidth + width - this.deleteImageSize / 2;
       const btnTop = y * this.mapHeight - this.deleteImageSize / 2;
       const btnPosition = this.transformPoint(btnLeft, btnTop);
@@ -544,25 +544,25 @@ class Canvas extends Base {
    * @param data
    */
   drawLabel (data) {
-    const { label, x, y, imageWidth, imageHeight } = data;
+    const { label, x, y, width, height } = data;
     const margin = this.labelStyle.margin || 15;
     let labelLeft = 0, labelTop = 0;
     switch (this.labelStyle.position) {
       case 'top':
-        labelLeft = x + imageWidth / 2;
+        labelLeft = x + width / 2;
         labelTop = y - margin;
         break;
       case 'bottom':
-        labelLeft = x + imageWidth / 2;
-        labelTop = y + imageHeight + margin;
+        labelLeft = x + width / 2;
+        labelTop = y + height + margin;
         break;
       case 'left':
         labelLeft = x - margin;
-        labelTop = y + imageHeight / 2;
+        labelTop = y + height / 2;
         break;
       case 'right':
-        labelLeft = x + imageWidth + margin;
-        labelTop = y + imageHeight / 2;
+        labelLeft = x + width + margin;
+        labelTop = y + height / 2;
         break;
     }
     const { left, top } = this.transformPoint(labelLeft, labelTop);
